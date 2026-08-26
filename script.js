@@ -16,9 +16,9 @@ if (navToggle && navMenu) {
     });
 }
 
-// Show a placeholder for any image that hasn't been added yet,
-// instead of a broken image icon. Drop your real photo in at the
-// same path (same filename) and this placeholder disappears automatically.
+// Show a placeholder for any model image that hasn't been added yet,
+// instead of a broken image icon. Drop your real photo in at the same
+// path (same filename) and this placeholder disappears automatically.
 document.querySelectorAll('.model-frame img').forEach(img => {
     img.addEventListener('error', () => {
         const frame = img.closest('.model-frame');
@@ -28,6 +28,63 @@ document.querySelectorAll('.model-frame img').forEach(img => {
         img.remove();
     }, { once: true });
 });
+
+// Avatar: fall back to a plain "U" if images/avatar.png hasn't been added yet.
+const avatarImg = document.getElementById('avatarImg');
+const avatarFrame = document.getElementById('avatarFrame');
+if (avatarImg && avatarFrame) {
+    avatarImg.addEventListener('error', () => {
+        avatarFrame.classList.add('missing');
+        avatarFrame.textContent = 'U';
+        avatarImg.remove();
+    }, { once: true });
+}
+
+// Background gif/video, fully automatic — no code editing needed.
+// Just add ONE of these files to your images/ folder and refresh:
+//   images/background.gif
+//   images/background.mp4  (rendered as a muted looping video)
+//   images/background.webm
+(function loadBackgroundMedia() {
+    const target = document.getElementById('bgMedia');
+    if (!target) return;
+
+    const candidates = [
+        { file: 'images/background.mp4', video: true },
+        { file: 'images/background.webm', video: true },
+        { file: 'images/background.gif', video: false }
+    ];
+
+    function tryNext(i) {
+        if (i >= candidates.length) return;
+        const { file, video } = candidates[i];
+
+        if (video) {
+            const v = document.createElement('video');
+            v.src = file;
+            v.muted = true;
+            v.loop = true;
+            v.playsInline = true;
+            v.oncanplay = () => {
+                v.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
+                target.appendChild(v);
+                target.classList.add('active');
+                v.play().catch(() => {});
+            };
+            v.onerror = () => tryNext(i + 1);
+        } else {
+            const img = new Image();
+            img.onload = () => {
+                target.style.backgroundImage = `url('${file}')`;
+                target.classList.add('active');
+            };
+            img.onerror = () => tryNext(i + 1);
+            img.src = file;
+        }
+    }
+
+    tryNext(0);
+})();
 
 // Reveal-on-scroll for sections and model cards
 const revealElements = document.querySelectorAll(".section, .model-card");

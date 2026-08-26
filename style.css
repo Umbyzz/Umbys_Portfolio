@@ -1,6 +1,4 @@
-/* UMBYZ — 3D Modeler
-   Matches the current index.html structure.
-*/
+/* UMBYZ — 3D Modeler */
 
 @font-face {
     font-family: "Monocraft";
@@ -20,39 +18,58 @@ html {
 
 :root {
     --background: #0a0d11;
-    --surface: #12161c;
-    --surface-2: #171c23;
-    --border: #232b34;
-    --border-soft: rgba(232, 237, 242, 0.10);
+    --surface: rgba(23, 29, 37, 0.55);
+    --surface-solid: #12161c;
+    --surface-2: rgba(28, 35, 44, 0.6);
+    --border: rgba(232, 237, 242, 0.10);
+    --border-strong: rgba(91, 155, 217, 0.35);
     --text: #e8edf2;
-    --muted: #8a97a3;
+    --muted: #92a0ad;
     --accent: #5b9bd9;
-    --accent-soft: rgba(91, 155, 217, 0.10);
+    --accent-soft: rgba(91, 155, 217, 0.12);
     --accent-dark: #071420;
+    --font-main: "Monocraft", "JetBrains Mono", monospace;
+    --radius: 16px;
 }
 
 body {
     margin: 0;
     background: var(--background);
     color: var(--text);
-    font-family: "Inter", Arial, sans-serif;
-    line-height: 1.6;
+    font-family: var(--font-main);
+    font-size: 14px;
+    line-height: 1.75;
 }
 
-body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    opacity: 0.03;
-    pointer-events: none;
-    background-image: radial-gradient(#e8edf2 0.7px, transparent 0.7px);
-    background-size: 8px 8px;
-    z-index: 999;
+h1, h2, h3, .logo, button, input {
+    font-family: var(--font-main);
 }
 
 a {
     color: inherit;
     text-decoration: none;
+}
+
+/* Optional gif/video background. To use: put a file at images/background.gif
+   (or .mp4) and set --has-bg: 1 below, or just add class="active" via the
+   inline snippet in the README note. See script.js for the auto-detect. */
+.bg-media {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity .6s ease;
+}
+.bg-media.active {
+    opacity: 0.35;
+}
+.bg-media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10,13,17,.55), rgba(10,13,17,.85) 60%, var(--background) 100%);
 }
 
 .grid-overlay {
@@ -65,45 +82,35 @@ a {
         linear-gradient(90deg, rgba(91, 155, 217, 0.12) 1px, transparent 1px);
     background-size: 80px 80px;
     mask-image: linear-gradient(to bottom, black, transparent 80%);
-    z-index: 0;
+    z-index: -1;
 }
 
+/* ============================================================
+   Navbar — slim, mostly a fallback for once you've scrolled past
+   the hero's quick-jump chips
+   ============================================================ */
 .navbar {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 72px;
-    padding: 0 7%;
+    height: 56px;
+    padding: 0 6%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: rgba(10, 13, 17, 0.88);
-    border-bottom: 1px solid var(--border-soft);
+    background: rgba(10, 13, 17, 0.75);
+    border-bottom: 1px solid var(--border);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     z-index: 100;
 }
 
-.logo,
-.eyebrow,
-.section-label,
-.category-heading span,
-.model-caption span,
-.plate-id,
-.button,
-.price-value,
-.social-arrow,
-.nav-toggle {
-    font-family: "JetBrains Mono", monospace;
-}
-
 .logo {
     color: var(--text);
-    font-family: "Monocraft", "JetBrains Mono", monospace;
-    font-size: 18px;
+    font-size: 15px;
     font-weight: 400;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
 }
 
 .logo-dot {
@@ -113,13 +120,12 @@ a {
 .navbar nav {
     display: flex;
     align-items: center;
-    gap: 28px;
+    gap: 22px;
 }
 
 .navbar nav a {
     color: var(--muted);
-    font-family: "JetBrains Mono", monospace;
-    font-size: 12px;
+    font-size: 11px;
     transition: color 0.2s ease;
 }
 
@@ -130,10 +136,11 @@ a {
 
 .nav-toggle {
     display: none;
-    width: 40px;
-    height: 40px;
-    padding: 8px;
+    width: 34px;
+    height: 34px;
+    padding: 7px;
     border: 1px solid var(--border);
+    border-radius: 8px;
     background: var(--surface);
     cursor: pointer;
 }
@@ -142,158 +149,205 @@ a {
     display: block;
     width: 100%;
     height: 1px;
-    margin: 5px 0;
+    margin: 4px 0;
     background: var(--text);
 }
 
+/* ============================================================
+   Hero — profile card + compact intro + quick-jump chips
+   ============================================================ */
 .hero {
-    min-height: 92vh;
-    padding: 150px 7% 100px;
+    padding: 100px 6% 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+}
+
+.profile-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 32px;
+}
+
+.avatar {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid var(--border-strong);
+    background: var(--surface-2);
     display: flex;
     align-items: center;
-    position: relative;
-    overflow: hidden;
-    background: var(--background);
+    justify-content: center;
+    box-shadow: 0 0 0 6px var(--accent-soft);
 }
 
-.hero-content {
-    position: relative;
-    z-index: 1;
-    max-width: 780px;
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
-.eyebrow,
-.section-label {
+.avatar.missing {
+    font-size: 26px;
+    font-weight: 400;
+    color: var(--accent);
+}
+
+.profile-name {
+    font-size: 18px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    margin: 4px 0 0;
+}
+
+.profile-tag {
+    color: var(--muted);
+    font-size: 12px;
+    max-width: 320px;
+    margin: 0;
+}
+
+.profile-socials {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    transition: color .2s ease, border-color .2s ease, transform .2s ease;
+}
+
+.icon-btn:hover {
+    color: var(--accent);
+    border-color: var(--border-strong);
+    transform: translateY(-2px);
+}
+
+.eyebrow {
     margin: 0;
     color: var(--accent);
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 500;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     text-transform: uppercase;
+    background: var(--accent-soft);
+    border: 1px solid var(--border-strong);
+    padding: 5px 12px;
+    border-radius: 999px;
+    display: inline-block;
 }
 
 .hero h1 {
     margin: 16px 0;
-    max-width: 720px;
-    font-family: "Rajdhani", sans-serif;
-    font-size: clamp(34px, 4.6vw, 52px);
-    font-weight: 600;
-    line-height: 1.15;
-    letter-spacing: -0.5px;
+    max-width: 620px;
+    font-size: clamp(24px, 3.4vw, 34px);
+    font-weight: 400;
+    line-height: 1.35;
+    letter-spacing: 0;
     color: var(--text);
 }
 
 .hero h1 span {
     color: var(--accent);
-    font-style: normal;
     display: block;
 }
 
 .description {
-    max-width: 560px;
+    max-width: 480px;
     color: var(--muted);
-    font-size: 15px;
-    line-height: 1.8;
+    font-size: 13px;
+    line-height: 1.9;
+    margin: 0 0 28px;
 }
 
-.buttons {
+.quick-links {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 30px;
+    justify-content: center;
+    gap: 10px;
+    max-width: 560px;
 }
 
-.button {
-    padding: 13px 22px;
-    border-radius: 2px;
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-}
-
-.button:hover,
-.button:focus-visible {
-    transform: translateY(-2px);
-}
-
-.button.primary {
-    color: var(--accent-dark);
-    background: var(--accent);
-}
-
-.button.primary:hover {
-    background: #79b6e8;
-}
-
-.button.secondary {
-    border: 1px solid var(--border);
+.chip {
+    padding: 9px 16px;
+    border-radius: 999px;
     background: var(--surface);
+    border: 1px solid var(--border);
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    color: var(--text);
+    transition: border-color .2s ease, color .2s ease, transform .2s ease;
 }
 
-.button.secondary:hover {
-    border-color: var(--accent);
+.chip:hover {
+    border-color: var(--border-strong);
+    color: var(--accent);
+    transform: translateY(-1px);
+}
+
+.chip-external {
     color: var(--accent);
 }
 
+/* ============================================================
+   Sections
+   ============================================================ */
 .section {
     position: relative;
     z-index: 1;
-    padding: 110px 7%;
-    max-width: 1280px;
+    padding: 64px 6%;
+    max-width: 1180px;
     margin: auto;
 }
 
+.section-label {
+    margin: 0;
+    color: var(--accent);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
 .section h2 {
-    margin: 10px 0 22px;
-    font-family: "Rajdhani", sans-serif;
-    font-size: clamp(30px, 3.6vw, 44px);
-    font-weight: 600;
-    line-height: 1.1;
-    letter-spacing: -0.5px;
+    margin: 8px 0 16px;
+    font-size: clamp(22px, 2.8vw, 30px);
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: 0;
 }
 
 .section-text {
-    max-width: 700px;
+    max-width: 640px;
     color: var(--muted);
-    font-size: 15px;
-    line-height: 1.8;
+    font-size: 13px;
+    line-height: 1.9;
 }
 
 .gallery-section {
-    max-width: 1400px;
-}
-
-.model-category {
-    padding-top: 45px;
-    scroll-margin-top: 72px;
-}
-
-.category-heading {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 18px;
-}
-
-.category-heading h3 {
-    margin: 0 0 12px;
-    font-family: "Rajdhani", sans-serif;
-    font-size: 24px;
-    font-weight: 600;
-}
-
-.category-heading span {
-    color: var(--accent);
-    font-size: 11px;
-    letter-spacing: 2px;
+    max-width: 1280px;
 }
 
 .model-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
+    gap: 14px;
+    margin-top: 8px;
 }
 
 .model-card {
@@ -301,27 +355,22 @@ a {
     overflow: hidden;
     background: var(--surface);
     border: 1px solid var(--border);
+    border-radius: var(--radius);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .model-card:hover {
-    transform: translateY(-4px);
-    border-color: var(--accent);
-    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.3);
+    transform: translateY(-3px);
+    border-color: var(--border-strong);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
 }
 
 .model-frame {
     position: relative;
     overflow: hidden;
     background: var(--surface-2);
-}
-
-.model-frame::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    border-bottom: 1px solid rgba(232, 237, 242, 0.06);
 }
 
 .model-card img {
@@ -337,22 +386,18 @@ a {
     transform: scale(1.02);
 }
 
-/* Placeholder shown automatically if an image file hasn't been added yet */
 .model-frame.missing {
     aspect-ratio: 16 / 10;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 16px;
+    padding: 14px;
 }
 
 .model-frame.missing::after {
     content: attr(data-label);
-    position: static;
-    border: none;
-    font-family: "JetBrains Mono", monospace;
-    font-size: 11px;
+    font-size: 10px;
     letter-spacing: 0.5px;
     color: var(--muted);
     text-transform: uppercase;
@@ -362,37 +407,38 @@ a {
     display: grid;
     grid-template-columns: auto 1fr auto;
     align-items: baseline;
-    gap: 16px;
-    padding: 15px 18px 17px;
+    gap: 12px;
+    padding: 12px 14px 14px;
 }
 
 .model-caption strong {
-    font-family: "Rajdhani", sans-serif;
-    font-size: 19px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 400;
 }
 
 .model-caption > span:last-child {
     color: var(--muted);
-    font-size: 11px;
+    font-size: 10px;
     text-align: right;
 }
 
 .plate-id {
     color: var(--accent);
-    font-family: "Monocraft", "JetBrains Mono", monospace;
-    font-size: 10px;
-    letter-spacing: 1px;
+    font-size: 9px;
+    letter-spacing: 0.5px;
 }
 
 .terms {
-    max-width: 800px;
-    margin: 45px 0 0;
-    padding: 18px 20px;
+    max-width: 780px;
+    margin: 28px 0 0;
+    padding: 16px 18px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
     border-left: 2px solid var(--accent);
-    background: var(--accent-soft);
+    background: var(--surface);
+    backdrop-filter: blur(8px);
     color: var(--muted);
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .terms strong {
@@ -400,36 +446,43 @@ a {
 }
 
 .pricing-section {
-    max-width: 1000px;
+    max-width: 900px;
 }
 
 .pricing-note {
-    margin-bottom: 36px;
+    margin-bottom: 22px;
 }
 
 .price-table {
-    margin: 35px 0;
-    border-top: 1px solid var(--border);
+    margin: 20px 0 18px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    backdrop-filter: blur(8px);
+    overflow: hidden;
 }
 
 .price-row {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    gap: 24px;
-    padding: 17px 0;
+    gap: 20px;
+    padding: 14px 18px;
     border-bottom: 1px solid var(--border);
 }
 
+.price-row:last-child {
+    border-bottom: none;
+}
+
 .price-item {
-    font-family: "Rajdhani", sans-serif;
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 400;
 }
 
 .price-value {
     color: var(--accent);
-    font-size: 12px;
+    font-size: 11px;
     white-space: nowrap;
 }
 
@@ -439,41 +492,46 @@ a {
 }
 
 .socials {
-    margin-top: 45px;
-    border-top: 1px solid var(--border);
+    margin-top: 30px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    backdrop-filter: blur(8px);
+    overflow: hidden;
 }
 
 .social-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
-    padding: 17px 0;
+    gap: 16px;
+    padding: 14px 18px;
     border-bottom: 1px solid var(--border);
     transition: color 0.2s ease, padding-left 0.2s ease;
 }
 
+.social-row:last-child {
+    border-bottom: none;
+}
+
 .social-row:hover {
-    padding-left: 8px;
+    padding-left: 22px;
     color: var(--accent);
 }
 
 .social-label {
-    font-family: "Rajdhani", sans-serif;
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 400;
 }
 
 .social-label em {
     color: var(--muted);
-    font-family: "JetBrains Mono", monospace;
-    font-size: 10px;
+    font-size: 9px;
     font-style: normal;
-    font-weight: 400;
 }
 
 .social-arrow {
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .model-caption a,
@@ -485,12 +543,12 @@ a {
 footer {
     position: relative;
     z-index: 1;
-    padding: 40px 7%;
+    padding: 28px 6%;
     border-top: 1px solid var(--border);
     display: flex;
     justify-content: space-between;
     color: var(--muted);
-    font-size: 12px;
+    font-size: 11px;
 }
 
 footer p {
@@ -504,8 +562,8 @@ footer a {
 .section,
 .model-card {
     opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
 .section.visible,
@@ -514,6 +572,9 @@ footer a {
     transform: translateY(0);
 }
 
+/* ============================================================
+   Responsive
+   ============================================================ */
 @media (max-width: 800px) {
     .navbar {
         padding: 0 5%;
@@ -525,7 +586,7 @@ footer a {
 
     .navbar nav {
         position: absolute;
-        top: 72px;
+        top: 56px;
         left: 5%;
         right: 5%;
         display: none;
@@ -534,6 +595,7 @@ footer a {
         gap: 0;
         padding: 8px;
         border: 1px solid var(--border);
+        border-radius: 12px;
         background: rgba(10, 13, 17, 0.97);
         backdrop-filter: blur(14px);
     }
@@ -544,15 +606,15 @@ footer a {
 
     .navbar nav a {
         padding: 12px;
-        font-size: 11px;
+        border-bottom: 1px solid var(--border);
     }
 
     .hero {
-        padding: 130px 5% 80px;
+        padding: 88px 6% 44px;
     }
 
     .section {
-        padding: 80px 5%;
+        padding: 48px 6%;
     }
 
     .model-grid {
@@ -572,30 +634,13 @@ footer a {
     .price-row {
         align-items: flex-start;
         flex-direction: column;
-        gap: 5px;
+        gap: 4px;
     }
 
     footer {
-        padding: 30px 5%;
-    }
-}
-
-@media (max-width: 480px) {
-    .logo {
-        font-size: 15px;
-    }
-
-    .description,
-    .section-text {
-        font-size: 14px;
-    }
-
-    .buttons {
+        padding: 24px 5%;
         flex-direction: column;
-        align-items: stretch;
-    }
-
-    .button {
+        gap: 8px;
         text-align: center;
     }
 }
@@ -605,9 +650,7 @@ footer a {
         scroll-behavior: auto;
     }
 
-    *,
-    *::before,
-    *::after {
+    *, *::before, *::after {
         transition-duration: 0.01ms !important;
         animation-duration: 0.01ms !important;
     }
