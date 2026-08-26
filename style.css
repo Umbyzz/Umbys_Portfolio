@@ -1,0 +1,614 @@
+/* UMBYZ — 3D Modeler
+   Matches the current index.html structure.
+*/
+
+@font-face {
+    font-family: "Monocraft";
+    src: url("https://cdn.jsdelivr.net/gh/IdreesInc/Monocraft@main/dist/Monocraft-ttf/Monocraft.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+:root {
+    --background: #0a0d11;
+    --surface: #12161c;
+    --surface-2: #171c23;
+    --border: #232b34;
+    --border-soft: rgba(232, 237, 242, 0.10);
+    --text: #e8edf2;
+    --muted: #8a97a3;
+    --accent: #5b9bd9;
+    --accent-soft: rgba(91, 155, 217, 0.10);
+    --accent-dark: #071420;
+}
+
+body {
+    margin: 0;
+    background: var(--background);
+    color: var(--text);
+    font-family: "Inter", Arial, sans-serif;
+    line-height: 1.6;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    opacity: 0.03;
+    pointer-events: none;
+    background-image: radial-gradient(#e8edf2 0.7px, transparent 0.7px);
+    background-size: 8px 8px;
+    z-index: 999;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.grid-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image:
+        linear-gradient(rgba(91, 155, 217, 0.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(91, 155, 217, 0.12) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: linear-gradient(to bottom, black, transparent 80%);
+    z-index: 0;
+}
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 72px;
+    padding: 0 7%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(10, 13, 17, 0.88);
+    border-bottom: 1px solid var(--border-soft);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    z-index: 100;
+}
+
+.logo,
+.eyebrow,
+.section-label,
+.category-heading span,
+.model-caption span,
+.plate-id,
+.button,
+.price-value,
+.social-arrow,
+.nav-toggle {
+    font-family: "JetBrains Mono", monospace;
+}
+
+.logo {
+    color: var(--text);
+    font-family: "Monocraft", "JetBrains Mono", monospace;
+    font-size: 18px;
+    font-weight: 400;
+    letter-spacing: 2px;
+}
+
+.logo-dot {
+    color: var(--accent);
+}
+
+.navbar nav {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.navbar nav a {
+    color: var(--muted);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    transition: color 0.2s ease;
+}
+
+.navbar nav a:hover,
+.navbar nav a:focus-visible {
+    color: var(--accent);
+}
+
+.nav-toggle {
+    display: none;
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+}
+
+.nav-toggle span {
+    display: block;
+    width: 100%;
+    height: 1px;
+    margin: 5px 0;
+    background: var(--text);
+}
+
+.hero {
+    min-height: 92vh;
+    padding: 150px 7% 100px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    background: var(--background);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 780px;
+}
+
+.eyebrow,
+.section-label {
+    margin: 0;
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.hero h1 {
+    margin: 16px 0;
+    max-width: 720px;
+    font-family: "Rajdhani", sans-serif;
+    font-size: clamp(34px, 4.6vw, 52px);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+    color: var(--text);
+}
+
+.hero h1 span {
+    color: var(--accent);
+    font-style: normal;
+    display: block;
+}
+
+.description {
+    max-width: 560px;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+.buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 30px;
+}
+
+.button {
+    padding: 13px 22px;
+    border-radius: 2px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.button:hover,
+.button:focus-visible {
+    transform: translateY(-2px);
+}
+
+.button.primary {
+    color: var(--accent-dark);
+    background: var(--accent);
+}
+
+.button.primary:hover {
+    background: #79b6e8;
+}
+
+.button.secondary {
+    border: 1px solid var(--border);
+    background: var(--surface);
+}
+
+.button.secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.section {
+    position: relative;
+    z-index: 1;
+    padding: 110px 7%;
+    max-width: 1280px;
+    margin: auto;
+}
+
+.section h2 {
+    margin: 10px 0 22px;
+    font-family: "Rajdhani", sans-serif;
+    font-size: clamp(30px, 3.6vw, 44px);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+}
+
+.section-text {
+    max-width: 700px;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+.gallery-section {
+    max-width: 1400px;
+}
+
+.model-category {
+    padding-top: 45px;
+    scroll-margin-top: 72px;
+}
+
+.category-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
+}
+
+.category-heading h3 {
+    margin: 0 0 12px;
+    font-family: "Rajdhani", sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.category-heading span {
+    color: var(--accent);
+    font-size: 11px;
+    letter-spacing: 2px;
+}
+
+.model-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.model-card {
+    margin: 0;
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.model-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.3);
+}
+
+.model-frame {
+    position: relative;
+    overflow: hidden;
+    background: var(--surface-2);
+}
+
+.model-frame::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-bottom: 1px solid rgba(232, 237, 242, 0.06);
+}
+
+.model-card img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    background: var(--surface-2);
+    transition: transform 0.45s ease;
+}
+
+.model-card:hover img {
+    transform: scale(1.02);
+}
+
+/* Placeholder shown automatically if an image file hasn't been added yet */
+.model-frame.missing {
+    aspect-ratio: 16 / 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 16px;
+}
+
+.model-frame.missing::after {
+    content: attr(data-label);
+    position: static;
+    border: none;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+}
+
+.model-caption {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: baseline;
+    gap: 16px;
+    padding: 15px 18px 17px;
+}
+
+.model-caption strong {
+    font-family: "Rajdhani", sans-serif;
+    font-size: 19px;
+    font-weight: 600;
+}
+
+.model-caption > span:last-child {
+    color: var(--muted);
+    font-size: 11px;
+    text-align: right;
+}
+
+.plate-id {
+    color: var(--accent);
+    font-family: "Monocraft", "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+}
+
+.terms {
+    max-width: 800px;
+    margin: 45px 0 0;
+    padding: 18px 20px;
+    border-left: 2px solid var(--accent);
+    background: var(--accent-soft);
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.terms strong {
+    color: var(--text);
+}
+
+.pricing-section {
+    max-width: 1000px;
+}
+
+.pricing-note {
+    margin-bottom: 36px;
+}
+
+.price-table {
+    margin: 35px 0;
+    border-top: 1px solid var(--border);
+}
+
+.price-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 17px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.price-item {
+    font-family: "Rajdhani", sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.price-value {
+    color: var(--accent);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.price-value em {
+    color: var(--muted);
+    font-style: normal;
+}
+
+.socials {
+    margin-top: 45px;
+    border-top: 1px solid var(--border);
+}
+
+.social-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 17px 0;
+    border-bottom: 1px solid var(--border);
+    transition: color 0.2s ease, padding-left 0.2s ease;
+}
+
+.social-row:hover {
+    padding-left: 8px;
+    color: var(--accent);
+}
+
+.social-label {
+    font-family: "Rajdhani", sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.social-label em {
+    color: var(--muted);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 400;
+}
+
+.social-arrow {
+    font-size: 14px;
+}
+
+.model-caption a,
+.terms a,
+.section-text a {
+    color: var(--accent);
+}
+
+footer {
+    position: relative;
+    z-index: 1;
+    padding: 40px 7%;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+footer p {
+    margin: 0;
+}
+
+footer a {
+    color: var(--accent);
+}
+
+.section,
+.model-card {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.section.visible,
+.model-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (max-width: 800px) {
+    .navbar {
+        padding: 0 5%;
+    }
+
+    .nav-toggle {
+        display: block;
+    }
+
+    .navbar nav {
+        position: absolute;
+        top: 72px;
+        left: 5%;
+        right: 5%;
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 8px;
+        border: 1px solid var(--border);
+        background: rgba(10, 13, 17, 0.97);
+        backdrop-filter: blur(14px);
+    }
+
+    .navbar nav.open {
+        display: flex;
+    }
+
+    .navbar nav a {
+        padding: 12px;
+        font-size: 11px;
+    }
+
+    .hero {
+        padding: 130px 5% 80px;
+    }
+
+    .section {
+        padding: 80px 5%;
+    }
+
+    .model-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .model-caption {
+        grid-template-columns: auto 1fr;
+        align-items: start;
+    }
+
+    .model-caption > span:last-child {
+        grid-column: 1 / -1;
+        text-align: left;
+    }
+
+    .price-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    footer {
+        padding: 30px 5%;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo {
+        font-size: 15px;
+    }
+
+    .description,
+    .section-text {
+        font-size: 14px;
+    }
+
+    .buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .button {
+        text-align: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}
