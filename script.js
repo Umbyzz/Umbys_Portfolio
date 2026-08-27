@@ -29,17 +29,6 @@ document.querySelectorAll('.model-frame img').forEach(img => {
     }, { once: true });
 });
 
-// Avatar: fall back to a plain "U" if images/avatar.png hasn't been added yet.
-const avatarImg = document.getElementById('avatarImg');
-const avatarFrame = document.getElementById('avatarFrame');
-if (avatarImg && avatarFrame) {
-    avatarImg.addEventListener('error', () => {
-        avatarFrame.classList.add('missing');
-        avatarFrame.textContent = 'U';
-        avatarImg.remove();
-    }, { once: true });
-}
-
 // Background gif/video, fully automatic — no code editing needed.
 // Just add ONE of these files to your images/ folder and refresh:
 //   images/background.gif

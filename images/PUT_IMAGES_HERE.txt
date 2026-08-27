@@ -1,0 +1,2 @@
+Optional files that go directly in this "images" folder (not a subfolder):
+background.gif  (or background.mp4 / background.webm for a video background)
