@@ -114,3 +114,39 @@ const observer = new IntersectionObserver((entries) => {
 revealElements.forEach((element) => {
     observer.observe(element);
 });
+
+// Lightbox — click to see a model image at full size instead of
+// cropped inside its small card. Closes via the × button, clicking
+// the backdrop, or pressing Esc — no auto-open/close, click only.
+(function setupLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const closeBtn = document.getElementById('lightboxClose');
+    if (!lightbox || !lightboxImg || !closeBtn) return;
+
+    function open(src, alt) {
+        lightboxImg.src = src;
+        lightboxImg.alt = alt || '';
+        lightbox.classList.add('active');
+        lightbox.setAttribute('aria-hidden', 'false');
+    }
+
+    function close() {
+        lightbox.classList.remove('active');
+        lightbox.setAttribute('aria-hidden', 'true');
+    }
+
+    // Only wire up images that actually loaded (missing/placeholder
+    // frames have no <img> left after script.js's fallback logic runs).
+    document.querySelectorAll('.model-frame img').forEach(img => {
+        img.addEventListener('click', () => open(img.currentSrc || img.src, img.alt));
+    });
+
+    closeBtn.addEventListener('click', close);
+    lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) close();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') close();
+    });
+})();
