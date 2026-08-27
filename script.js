@@ -17,23 +17,42 @@ if (navToggle && navMenu) {
 }
 
 // Show a placeholder for any model image that hasn't been added yet,
-// instead of a broken image icon. Drop your real photo in at the same
-// path (same filename) and this placeholder disappears automatically.
+// instead of a broken image icon. This also auto-detects file format —
+// if a card references "sinnrom-scythe.jpg" but you actually uploaded
+// "sinnrom-scythe.png" or ".gif", it'll try those automatically before
+// giving up and showing the placeholder.
+const IMAGE_EXT_CANDIDATES = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+function showMissingPlaceholder(img) {
+    const frame = img.closest('.model-frame');
+    const label = img.alt || 'Image not added yet';
+    frame.classList.add('missing');
+    frame.setAttribute('data-label', label);
+    img.remove();
+}
+
 document.querySelectorAll('.model-frame img').forEach(img => {
-    img.addEventListener('error', () => {
-        const frame = img.closest('.model-frame');
-        const label = img.alt || 'Image not added yet';
-        frame.classList.add('missing');
-        frame.setAttribute('data-label', label);
-        img.remove();
-    }, { once: true });
+    const originalSrc = img.getAttribute('src');
+    const dotIndex = originalSrc.lastIndexOf('.');
+    const base = dotIndex !== -1 ? originalSrc.slice(0, dotIndex) : originalSrc;
+    const originalExt = dotIndex !== -1 ? originalSrc.slice(dotIndex + 1).toLowerCase() : '';
+    const remaining = IMAGE_EXT_CANDIDATES.filter(ext => ext !== originalExt);
+    let i = 0;
+
+    img.addEventListener('error', function tryNextExtension() {
+        if (i >= remaining.length) {
+            img.removeEventListener('error', tryNextExtension);
+            showMissingPlaceholder(img);
+            return;
+        }
+        img.src = `${base}.${remaining[i++]}`;
+    });
 });
 
-// Background gif/video, fully automatic — no code editing needed.
+// Background gif/image/video, fully automatic — no code editing needed.
 // Just add ONE of these files to your images/ folder and refresh:
-//   images/background.gif
-//   images/background.mp4  (rendered as a muted looping video)
-//   images/background.webm
+//   images/background.mp4  or  .webm   (rendered as a muted looping video)
+//   images/background.gif, .png, .jpg, or .webp   (rendered as a still/animated image)
 (function loadBackgroundMedia() {
     const target = document.getElementById('bgMedia');
     if (!target) return;
@@ -41,7 +60,11 @@ document.querySelectorAll('.model-frame img').forEach(img => {
     const candidates = [
         { file: 'images/background.mp4', video: true },
         { file: 'images/background.webm', video: true },
-        { file: 'images/background.gif', video: false }
+        { file: 'images/background.gif', video: false },
+        { file: 'images/background.png', video: false },
+        { file: 'images/background.jpg', video: false },
+        { file: 'images/background.jpeg', video: false },
+        { file: 'images/background.webp', video: false }
     ];
 
     function tryNext(i) {
