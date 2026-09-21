@@ -1,7 +1,9 @@
-// Numbered albums: ModelName1.png through ModelName10.png, in the existing image folder.
+// Model cards and albums are generated automatically from the images folders.
 const motion = matchMedia('(prefers-reduced-motion: reduce)');
 const portfolio = document.getElementById('portfolio');
 const commission = document.getElementById('commission');
+const contributions = document.getElementById('contributions');
+const sectors = [portfolio, commission, contributions];
 let currentSector;
 let routeVersion = 0;
 let animations = [];
@@ -10,12 +12,12 @@ async function route() {
     animations.forEach(animation => animation.cancel());
     animations = [];
     const hash = location.hash.slice(1);
-    const next = hash === 'pricing' ? commission : portfolio;
+    const next = hash === 'pricing' ? commission : hash === 'contributions' ? contributions : portfolio;
     const changed = currentSector !== next;
-    const direction = next === commission ? 1 : -1;
+    const direction = sectors.indexOf(next) > sectors.indexOf(currentSector) ? 1 : -1;
     const animate = changed && currentSector && !motion.matches;
     document.querySelectorAll('[data-sector]').forEach(link => {
-        if (link.dataset.sector === (next === portfolio ? 'portfolio' : 'pricing')) link.setAttribute('aria-current', 'page');
+        if (link.dataset.sector === (next === portfolio ? 'portfolio' : next === commission ? 'pricing' : 'contributions')) link.setAttribute('aria-current', 'page');
         else link.removeAttribute('aria-current');
     });
     if (animate) {
@@ -27,8 +29,7 @@ async function route() {
         await outgoing.finished.catch(() => {});
         if (version !== routeVersion) return;
     }
-    portfolio.hidden = next !== portfolio;
-    commission.hidden = next !== commission;
+    sectors.forEach(sector => { sector.hidden = sector !== next; });
     currentSector = next;
     if (changed) window.scrollTo({top: 0, behavior: 'instant'});
     const target = document.getElementById(hash);
@@ -73,21 +74,6 @@ function setColumns(value, save = true) {
 setColumns(savedColumns, false);
 document.querySelectorAll('[data-columns]').forEach(button => button.addEventListener('click', () => setColumns(button.dataset.columns)));
 
-const extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-function loadImage(img, src, onMissing) {
-    const dot = src.lastIndexOf('.');
-    const base = dot < 0 ? src : src.slice(0, dot);
-    const ext = dot < 0 ? '' : src.slice(dot + 1).toLowerCase();
-    const candidates = [src, ...extensions.filter(item => item !== ext).map(item => `${base}.${item}`)];
-    let index = 0;
-    img.onerror = () => {
-        if (++index < candidates.length) img.src = candidates[index];
-        else { img.onerror = null; onMissing?.(); }
-    };
-    img.src = candidates[0];
-    // Catch a cached failure that occurred before this script attached its handler.
-    if (img.complete && !img.naturalWidth) img.onerror();
-}
 const album = document.getElementById('album');
 const lightbox = document.getElementById('lightbox');
 const fullImage = document.getElementById('lightboxImg');
@@ -97,138 +83,80 @@ function enlarge(src, alt) {
     document.getElementById('imageCaption').textContent = alt;
     lightbox.showModal();
 }
-for (const [dialog, closeId] of [[album, 'albumClose'], [lightbox, 'lightboxClose']]) {
-    document.getElementById(closeId).addEventListener('click', () => dialog.close());
+function closePreview(dialog) {
+    if (!dialog.open || dialog.classList.contains('is-closing')) return;
+    if (motion.matches) { dialog.close(); return; }
+    dialog.classList.add('is-closing');
+    let timeout;
+    const finish = () => {
+        clearTimeout(timeout);
+        dialog.removeEventListener('animationend', onEnd);
+        dialog.close();
+        dialog.classList.remove('is-closing');
+    };
+    const onEnd = event => {
+        if (event.target === dialog && event.animationName === 'preview-bubble-out') finish();
+    };
+    dialog.addEventListener('animationend', onEnd);
+    timeout = setTimeout(finish, 260);
+}
+for (const [dialog, closeId] of [[album, 'albumClose'], [lightbox, 'lightboxClose'], [document.getElementById('externalLinkDialog'), 'externalClose']]) {
+    document.getElementById(closeId).addEventListener('click', () => closePreview(dialog));
+    dialog.addEventListener('cancel', event => { event.preventDefault(); closePreview(dialog); });
     dialog.addEventListener('click', event => {
         const rect = dialog.getBoundingClientRect();
-        if (event.target === dialog && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) dialog.close();
+        if (event.target === dialog && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) closePreview(dialog);
     });
 }
-// Discover numbered albums only as their cards approach the viewport.
-// Use Terrablade1.png ... Terrablade10.png in the model's existing folder.
-const imageProbeCache = new Map();
-function probeImage(src) {
-    if (!imageProbeCache.has(src)) imageProbeCache.set(src, new Promise(resolve => {
-        const image = new Image();
-        const timer = setTimeout(() => finish(null), 8000);
-        function finish(value) { clearTimeout(timer); image.onload = image.onerror = null; resolve(value); }
-        image.onload = () => finish(src);
-        image.onerror = () => finish(null);
-        image.src = src;
-    }));
-    return imageProbeCache.get(src);
-}
-async function findImage(base, preferred = '') {
-    for (const ext of [...new Set([preferred, ...extensions].filter(Boolean))]) {
-        const src = await probeImage(`${base}.${ext}`);
-        if (src) return src;
-    }
-    return null;
-}
-async function discoverNumbered(original, title) {
-    const folder = original.slice(0, original.lastIndexOf('/') + 1);
-    const stem = original.slice(folder.length).replace(/\.[^.]+$/, '');
-    const displayStem = title.replace(/[^a-zA-Z0-9]/g, '');
-    const stems = [...new Set([displayStem, stem, displayStem.toLowerCase()])];
-    for (const name of stems) {
-        const first = await findImage(`${folder}${name}1`);
-        if (!first) continue;
-        const preferred = first.split('.').pop();
-        // Keep numeric order and allow gaps, e.g. 1, 2, 4, 10.
-        const rest = [];
-        for (let number = 2; number <= 10; number += 3) {
-            rest.push(...await Promise.all(Array.from({length: Math.min(3, 11 - number)}, (_, offset) => findImage(`${folder}${name}${number + offset}`, preferred))));
-        }
-        return [first, ...rest.filter(Boolean)];
-    }
-    return [];
-}
-const cardInitializers = new WeakMap();
-const albumObserver = new IntersectionObserver(entries => {
-    for (const entry of entries) if (entry.isIntersecting) {
-        albumObserver.unobserve(entry.target);
-        cardInitializers.get(entry.target)();
-    }
-}, {rootMargin: '300px'});
+// The folder scanner writes each card and its exact album paths before publication.
 document.querySelectorAll('.model-card').forEach(card => {
     const img = card.querySelector('img');
     const frame = card.querySelector('.model-frame');
     const title = card.querySelector('strong').textContent;
-    const original = img.getAttribute('src');
     let extras = [];
     try { extras = JSON.parse(card.dataset.images || '[]'); } catch {}
-    extras = Array.isArray(extras) ? extras.filter(src => typeof src === 'string' && src.trim()) : [];
-    let sources = [];
-    let ready;
+    const sources = [...new Set([img.getAttribute('src'), ...(Array.isArray(extras) ? extras : [])])];
     const trigger = document.createElement('button');
     trigger.type = 'button';
-    trigger.className = 'model-open';
-    trigger.setAttribute('aria-label', `Open ${title}`);
-    trigger.setAttribute('aria-haspopup', 'dialog');
+    trigger.className = 'model-open' + (sources.length > 1 ? ' has-album' : '');
+    trigger.setAttribute('aria-label', sources.length > 1 ? `Open ${title} album, ${sources.length} images` : `Enlarge ${title}`);
+    trigger.setAttribute('aria-haspopup','dialog');
     frame.before(trigger);
     trigger.append(frame);
-    const badge = document.createElement('span');
-    badge.className = 'album-count';
-    badge.hidden = true;
-    trigger.append(badge);
-    // Retain normal covers immediately; numbered shots may replace them below.
-    loadImage(img, original, () => { img.hidden = true; });
-    function initialize() {
-        if (ready) return ready;
-        ready = (async () => {
-            const numbered = await discoverNumbered(original, title);
-            const cover = numbered.length ? null : await findImage(original.replace(/\.[^.]+$/, ''), original.split('.').pop());
-            sources = [...new Set([...numbered, ...(cover ? [cover] : []), ...extras].map(src => new URL(src, document.baseURI).href))];
-            if (!sources.length) {
-                frame.classList.add('missing');
-                frame.dataset.label = `${title} — image not added yet`;
-                img.hidden = true;
-                trigger.disabled = true;
-                return;
-            }
-            img.onerror = null;
-            img.src = sources[0];
-            img.hidden = false;
-            trigger.classList.toggle('has-album', sources.length > 1);
-            trigger.setAttribute('aria-label', sources.length > 1 ? `Open ${title} album, ${sources.length} images` : `Enlarge ${title}`);
-            badge.textContent = `▱ ${sources.length} images`;
-            badge.hidden = sources.length < 2;
-        })();
-        return ready;
+    if (sources.length > 1) {
+        const badge = document.createElement('span');
+        badge.className = 'album-count';
+        badge.textContent = `▱ ${sources.length} images`;
+        trigger.append(badge);
     }
-    cardInitializers.set(card, initialize);
-    albumObserver.observe(card);
-    trigger.addEventListener('click', async () => {
-        trigger.setAttribute('aria-busy', 'true');
-        badge.hidden = false;
-        badge.textContent = 'Loading…';
-        try { await initialize(); } finally {
-            trigger.removeAttribute('aria-busy');
-            badge.textContent = `▱ ${sources.length} images`;
-            badge.hidden = sources.length < 2;
-        }
-        // The visitor may have changed sectors while images were being checked.
-        if (!sources.length || card.closest('.sector').hidden || album.open || lightbox.open) return;
-        if (sources.length === 1) return enlarge(sources[0], img.alt);
+    img.addEventListener('error', () => {
+        frame.classList.add('missing');
+        frame.dataset.label = `${title} — image unavailable`;
+        img.hidden = true;
+        if (sources.length === 1) trigger.disabled = true;
+    });
+    trigger.addEventListener('click', () => {
+        if (album.open || lightbox.open) return;
+        if (sources.length === 1) return enlarge(sources[0],img.alt);
         document.getElementById('albumTitle').textContent = title;
         document.getElementById('albumCaption').textContent = card.querySelector('.model-caption > span:last-child').textContent;
         const container = document.getElementById('albumImages');
         container.replaceChildren();
-        sources.forEach((src, index) => {
+        sources.forEach((src,index) => {
             const button = document.createElement('button');
             button.type = 'button';
-            button.setAttribute('aria-label', `Enlarge ${title}, image ${index + 1}`);
+            button.setAttribute('aria-label',`Enlarge ${title}, image ${index+1}`);
             const shot = document.createElement('img');
-            shot.alt = `${title} — image ${index + 1}`;
+            shot.alt = `${title} — image ${index+1}`;
+            shot.onerror = () => {button.disabled = true;button.textContent = 'Image unavailable';};
+            shot.src = src;
             button.append(shot);
             container.append(button);
-            loadImage(shot, src, () => { button.disabled = true; button.textContent = 'Image not available'; });
-            button.addEventListener('click', () => enlarge(shot.currentSrc || shot.src, shot.alt));
+            button.addEventListener('click',() => {if (!lightbox.open) enlarge(src,shot.alt);});
         });
         album.showModal();
     });
 });
-
 
 // Optional background, checked in this order. Reduced motion uses still images.
 (function background() {
@@ -261,3 +189,50 @@ document.querySelectorAll('.model-card').forEach(card => {
     }
     attempt(0);
 })();
+
+// Contributions are kept in one small, editable file: contributions.js.
+const projectGrid = document.getElementById('contributionGrid');
+const exitDialog = document.getElementById('externalLinkDialog');
+const exitContinue = document.getElementById('externalContinue');
+for (const project of window.CONTRIBUTIONS || []) {
+    const card = document.createElement('article');
+    card.className = 'contribution-card';
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'contribution-open';
+    if (project.image) {
+        const image = document.createElement('img');
+        image.src = project.image;
+        image.alt = '';
+        image.loading = 'lazy';
+        image.onerror = () => image.remove();
+        button.append(image);
+    }
+    const copy = document.createElement('span');
+    copy.className = 'contribution-copy';
+    for (const [className, text] of [['contribution-tag',project.tag],['contribution-title',project.title],['contribution-description',project.description]]) {
+        const span = document.createElement('span');
+        span.className = className;
+        span.textContent = text || '';
+        copy.append(span);
+    }
+    let destination;
+    try { const parsed = new URL(project.url); if (parsed.protocol === 'https:') destination = parsed; } catch {}
+    const hint = document.createElement('span');
+    hint.className = 'contribution-hint';
+    hint.textContent = destination ? 'Visit project ↗' : 'Project link coming soon';
+    copy.append(hint);
+    button.append(copy);
+    button.disabled = !destination;
+    button.setAttribute('aria-label', destination ? `Visit ${project.title} — opens an external-link prompt` : `${project.title} — project link coming soon`);
+    button.addEventListener('click', () => {
+        document.getElementById('externalProject').textContent = project.title;
+        document.getElementById('externalDestination').textContent = destination.href;
+        exitContinue.href = destination.href;
+        exitDialog.showModal();
+    });
+    card.append(button);
+    projectGrid.append(card);
+}
+document.getElementById('externalCancel').addEventListener('click', () => closePreview(exitDialog));
+exitContinue.addEventListener('click', () => closePreview(exitDialog));

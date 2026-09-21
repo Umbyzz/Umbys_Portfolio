@@ -17,6 +17,10 @@ html {
 }
 
 :root {
+    /* BACKGROUND CONTROLS: 0 = invisible, 1 = fully visible. */
+    --background-opacity: 1;
+    /* Darkening overlay: 0 = none, 1 = original dark gradient. */
+    --background-shade: 0;
     --background: #0a0d11;
     --surface: rgba(23, 29, 37, 0.55);
     --surface-solid: #12161c;
@@ -50,9 +54,8 @@ a {
     text-decoration: none;
 }
 
-/* Optional gif/video background. To use: put a file at images/background.gif
-   (or .mp4) and set --has-bg: 1 below, or just add class="active" via the
-   inline snippet in the README note. See script.js for the auto-detect. */
+/* Optional background: add images/background.mp4 (or gif/png/jpg/webp).
+   Adjust the two BACKGROUND CONTROLS near the top of this file. */
 .bg-media {
     position: fixed;
     inset: 0;
@@ -63,9 +66,10 @@ a {
     transition: opacity .6s ease;
 }
 .bg-media.active {
-    opacity: 0.35;
+    opacity: var(--background-opacity);
 }
 .bg-media::after {
+    opacity: var(--background-shade);
     content: "";
     position: absolute;
     inset: 0;
@@ -715,4 +719,48 @@ main { overflow-x: clip; }
     .album-dialog[open]::backdrop, .image-dialog[open]::backdrop {
         animation: none;
     }
+}
+
+/* Keep the dialog and its backdrop alive until the closing bubble finishes. */
+.album-dialog[open].is-closing, .image-dialog[open].is-closing {
+    animation: preview-bubble-out 180ms ease-in both;
+    pointer-events: none;
+}
+.album-dialog[open].is-closing::backdrop, .image-dialog[open].is-closing::backdrop {
+    animation: preview-backdrop-in 180ms ease-in reverse both;
+}
+@keyframes preview-bubble-out {
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to { opacity: 0; transform: translateY(8px) scale(.965); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .album-dialog[open].is-closing, .image-dialog[open].is-closing,
+    .album-dialog[open].is-closing::backdrop, .image-dialog[open].is-closing::backdrop { animation: none; }
+}
+
+#contributions { padding-top: 80px; }
+.contributions-section { max-width: 1280px; }
+.contribution-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; margin-top: 28px; }
+.contribution-card { overflow: hidden; border: 1px solid var(--border); border-radius: 20px; background: linear-gradient(140deg,#12243a,#0c1020); }
+.contribution-open { display: flex; position: relative; align-items: flex-end; width: 100%; min-height: 320px; padding: 28px; border: 0; background: transparent; color: var(--text); text-align: left; cursor: pointer; }
+.contribution-open img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .5; }
+.contribution-open::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg,rgba(5,12,24,.96),rgba(5,12,24,.1)); }
+.contribution-copy { position: relative; z-index: 1; display: grid; gap: 12px; }
+.contribution-tag { color: var(--accent); font-size: 10px; }
+.contribution-title { font-size: clamp(20px,2.5vw,30px); line-height: 1.3; color: var(--accent); }
+.contribution-description { font-size: 12px; line-height: 1.8; }
+.contribution-hint { color: var(--muted); font-size: 10px; }
+.contribution-open:disabled { cursor: default; }
+.contribution-open:not(:disabled):hover { background: var(--accent-soft); }
+.external-dialog { max-width: 520px; }
+#externalNotice { color: var(--muted); font-size: 13px; }
+#externalDestination { color: var(--accent); overflow-wrap: anywhere; font-size: 11px; }
+.external-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+.external-actions .chip { cursor: pointer; }
+@media(max-width:600px) {
+    .navbar { height: auto; min-height: 56px; flex-wrap: wrap; justify-content: center; padding: 8px 3%; gap: 5px; }
+    .navbar .logo { display: none; }
+    .navbar .sector-nav a { font-size: 9px; padding: 8px 7px; }
+    .contribution-grid { grid-template-columns: 1fr; }
+    .contribution-open { min-height: 270px; padding: 22px; }
 }

@@ -29,3 +29,7 @@ Double-click `START-PREVIEW.cmd` (requires Node.js LTS). Keep its window open. A
 The preview is at http://127.0.0.1:8767. Opening index.html directly shows the last generated gallery; use the launcher for live folder discovery. To update the saved HTML manually, run `node tools/generate-gallery.cjs` from the website folder.
 
 Albums and enlarged pictures fade and gently shrink on close, including the × button, Escape, and clicking outside. Reduced-motion preferences skip the animation.
+
+## Contributions
+Edit contributions.js to add projects. Each entry has title, description, tag, image (optional), and an HTTPS url. Copy an existing entry to add another. Project cards show a departure prompt before opening their link in a new tab. Include contributions.js when uploading the website.
+

@@ -1,0 +1,172 @@
+[
+  {
+    "aliases": [
+      "sinnrom-scythe",
+      "Sinnrom Scythe"
+    ],
+    "title": "Sinnrom Scythe",
+    "caption": "Commission for Sourbloxia.",
+    "plate": "PL-01",
+    "order": 0
+  },
+  {
+    "aliases": [
+      "terrablade",
+      "Terrablade"
+    ],
+    "title": "Terrablade",
+    "caption": "New and old, from Terraria.",
+    "plate": "PL-02",
+    "order": 1
+  },
+  {
+    "aliases": [
+      "toy-knife",
+      "Toy Knife"
+    ],
+    "title": "Toy Knife",
+    "caption": "From Undertale (Chara's knife), with recolorable emissive.",
+    "plate": "PL-04",
+    "order": 2
+  },
+  {
+    "aliases": [
+      "xtale-knives",
+      "Xtale Knives"
+    ],
+    "title": "Xtale Knives",
+    "caption": "My own take on Xtale Chara / Sans knives.",
+    "plate": "PL-05",
+    "order": 3
+  },
+  {
+    "aliases": [
+      "crystal-sword",
+      "Crystal Sword"
+    ],
+    "title": "Crystal Sword",
+    "caption": "Random weapon study.",
+    "plate": "PL-06",
+    "order": 4
+  },
+  {
+    "aliases": [
+      "meem-sword",
+      "The Meem Sword.™"
+    ],
+    "title": "The Meem Sword.™",
+    "caption": "Character prop.",
+    "plate": "PL-07",
+    "order": 5
+  },
+  {
+    "aliases": [
+      "smile-ego",
+      "Smile EGO"
+    ],
+    "title": "Smile EGO",
+    "caption": "Older character model.",
+    "plate": "PL-08",
+    "order": 6
+  },
+  {
+    "aliases": [
+      "part-sword",
+      "The Part Sword"
+    ],
+    "title": "The Part Sword",
+    "caption": "My best creation.",
+    "plate": "PL-09",
+    "order": 7
+  },
+  {
+    "aliases": [
+      "scrapped-lantern",
+      "Scrapped Lantern"
+    ],
+    "title": "Scrapped Lantern",
+    "caption": "Prop model for Pressure.",
+    "plate": "PL-03",
+    "order": 8
+  },
+  {
+    "aliases": [
+      "emperors-mech",
+      "Emperor's Ult Mech"
+    ],
+    "title": "Emperor's Ult Mech",
+    "caption": "From <a href=\"https://rblx.games/10449761463\" target=\"_blank\" rel=\"noopener\">Tsb</a>. Remade from scratch and rigged.",
+    "plate": "PL-10",
+    "order": 9
+  },
+  {
+    "aliases": [
+      "withered-foxy",
+      "Withered Foxy"
+    ],
+    "title": "Withered Foxy",
+    "caption": "Full model + rig.",
+    "plate": "PL-11",
+    "order": 10
+  },
+  {
+    "aliases": [
+      "pix-lucky",
+      "Pix & Lucky"
+    ],
+    "title": "Pix & Lucky",
+    "caption": "From <a href=\"https://x.com/odeko_yma?s=20\" target=\"_blank\" rel=\"noopener\">Odeko YMA</a>.",
+    "plate": "PL-12",
+    "order": 11
+  },
+  {
+    "aliases": [
+      "uxor-pigeon",
+      "Uxor Pigeon"
+    ],
+    "title": "Uxor Pigeon",
+    "caption": "OC belongs to <a href=\"https://uxor.carrd.co\" target=\"_blank\" rel=\"noopener\">Uxor</a> — Artfight 2026.",
+    "plate": "PL-13",
+    "order": 12
+  },
+  {
+    "aliases": [
+      "doob-raccoon",
+      "Doob Raccoon"
+    ],
+    "title": "Doob Raccoon",
+    "caption": "OC belongs to <a href=\"https://raddoob.straw.page\" target=\"_blank\" rel=\"noopener\">Raddoob</a> — Artfight 2026.",
+    "plate": "PL-14",
+    "order": 13
+  },
+  {
+    "aliases": [
+      "nomu",
+      "Nomu"
+    ],
+    "title": "Nomu",
+    "caption": "From MHA — old schoolwork.",
+    "plate": "PL-15",
+    "order": 14
+  },
+  {
+    "aliases": [
+      "franbow-catbat",
+      "Franbow Cat-Bat"
+    ],
+    "title": "Franbow Cat-Bat",
+    "caption": "OC belongs to <a href=\"https://toyhou.se/Lemon_FoxArit\" target=\"_blank\" rel=\"noopener\">Lemon FoxArit</a> — Artfight 2026.",
+    "plate": "PL-16",
+    "order": 15
+  },
+  {
+    "aliases": [
+      "crosh-crocodile",
+      "Crosh Crocodile"
+    ],
+    "title": "Crosh Crocodile",
+    "caption": "OC belongs to <a href=\"https://sites.google.com/view/snugwonder/home?safe=active\" target=\"_blank\" rel=\"noopener\">Snugwonder</a> — Artfight 2026.",
+    "plate": "PL-17",
+    "order": 16
+  }
+]
