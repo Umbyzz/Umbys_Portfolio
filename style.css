@@ -16,6 +16,20 @@ html {
     scroll-behavior: smooth;
 }
 
+/* Hide scrollbar chrome without disabling wheel, touch or keyboard scrolling.
+   No scrollbar gutter means opening a dialog cannot change the page width. */
+html, body, dialog {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+dialog::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
 :root {
     /* BACKGROUND CONTROLS: 0 = invisible, 1 = fully visible. */
     --background-opacity: 1;
@@ -751,7 +765,12 @@ main { overflow-x: clip; }
 .contribution-description { font-size: 12px; line-height: 1.8; }
 .contribution-hint { color: var(--muted); font-size: 10px; }
 .contribution-open:disabled { cursor: default; }
-.contribution-open:not(:disabled):hover { background: var(--accent-soft); }
+.contribution-card { transition: transform 240ms cubic-bezier(.2,.8,.2,1); }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .contribution-card:has(.contribution-open:not(:disabled)):hover {
+        transform: scale(1.015);
+    }
+}
 .external-dialog { max-width: 520px; }
 #externalNotice { color: var(--muted); font-size: 13px; }
 #externalDestination { color: var(--accent); overflow-wrap: anywhere; font-size: 11px; }
