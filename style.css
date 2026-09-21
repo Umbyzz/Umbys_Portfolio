@@ -490,18 +490,7 @@ footer a {
     color: var(--accent);
 }
 
-.section,
-.model-card {
-    opacity: 0;
-    transform: translateY(24px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
-}
 
-.section.visible,
-.model-card.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
 
 /* ============================================================
    Responsive
@@ -645,4 +634,85 @@ footer a {
 .lightbox-close:hover {
     color: var(--accent);
     border-color: var(--border-strong);
+}
+/* Sectors and gallery controls */
+[hidden] { display: none !important; }
+body { isolation: isolate; }
+.navbar { gap: 12px; }
+.navbar .sector-nav { display: flex; position: static; flex-direction: row; gap: 4px; padding: 4px; width: auto; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); }
+.navbar .sector-nav a { padding: 7px 13px; border: 0; border-radius: 999px; font-size: 11px; }
+.sector-nav a[aria-current="page"] { color: var(--accent); background: var(--accent-soft); }
+.sector { min-height: calc(100vh - 100px); }
+#commission { padding-top: 80px; }
+.section { scroll-margin-top: 80px; }
+.gallery-toolbar.section { max-width: 1280px; padding-top: 12px; padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 16px; color: var(--muted); font-size: 11px; }
+.grid-controls { display: flex; align-items: center; gap: 6px; }
+.grid-controls > span { margin-right: 6px; }
+button { color: var(--text); }
+.grid-controls button { width: 36px; height: 36px; border: 1px solid var(--border); background: var(--surface); border-radius: 9px; cursor: pointer; }
+.grid-controls button[aria-pressed="true"] { color: var(--accent); border-color: var(--border-strong); background: var(--accent-soft); }
+.model-grid { grid-template-columns: repeat(var(--columns, 2), minmax(0, 1fr)); gap: 20px; }
+.model-card { overflow: visible; }
+.model-frame { border-radius: 15px 15px 0 0; }
+.model-caption { grid-template-columns: auto 1fr; }
+.model-caption > span:last-child { grid-column: 1 / -1; text-align: left; }
+.model-open { display: block; position: relative; width: 100%; border: 0; padding: 0; background: transparent; cursor: zoom-in; border-radius: 15px 15px 0 0; }
+.model-open .model-frame { display: block; }
+.model-open.has-album::before, .model-open.has-album::after { content: ''; position: absolute; inset: 0 8px; border: 1px solid var(--border-strong); border-radius: 14px; background: #142333; transition: transform .25s ease; }
+.model-open.has-album::before { transform: translateY(-5px) rotate(-1deg); }
+.model-open.has-album::after { transform: translateY(-3px) rotate(1deg); }
+.model-open .model-frame { z-index: 1; }
+@media (hover: hover) { .model-open.has-album:hover::before { transform: translateY(-10px) rotate(-3deg); } .model-open.has-album:hover::after { transform: translateY(-6px) rotate(2deg); } }
+.album-count { position: absolute; z-index: 2; right: 12px; bottom: 12px; padding: 5px 9px; border: 1px solid var(--border-strong); border-radius: 8px; background: rgba(7,20,32,.9); font-size: 10px; pointer-events: none; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; }
+dialog { color: var(--text); font-family: var(--font-main); background: #101923; border: 1px solid var(--border-strong); border-radius: 18px; padding: 24px; max-height: 90dvh; }
+dialog::backdrop { background: rgba(3,8,14,.88); backdrop-filter: blur(8px); }
+.album-dialog { width: min(960px, 94vw); }
+.dialog-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.dialog-heading h2 { font-size: 22px; font-weight: normal; margin: 8px 0; }
+#albumCaption { color: var(--muted); font-size: 12px; }
+.close-button { flex-shrink: 0; width: 44px; height: 44px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 50%; cursor: pointer; font-size: 24px; }
+.album-images { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; margin-top: 22px; }
+.album-images button { padding: 0; border: 1px solid var(--border); background: var(--background); border-radius: 10px; overflow: hidden; cursor: zoom-in; }
+.album-images img { display: block; width: 100%; aspect-ratio: 5/4; object-fit: contain; }
+.image-dialog { width: fit-content; max-width: 96vw; padding: 16px; }
+.image-dialog .close-button { display: block; margin: 0 0 12px auto; }
+.image-dialog img { display: block; max-width: 88vw; max-height: 68dvh; object-fit: contain; }
+#imageCaption { font-size: 11px; color: var(--muted); }
+html:has(dialog[open]) { overflow: hidden; }
+@media (max-width: 800px) { .model-grid { grid-template-columns: repeat(var(--columns, 1),minmax(0,1fr)); } .model-caption { padding: 10px; gap: 5px; } .model-caption strong { font-size: 12px; overflow-wrap: anywhere; } .plate-id { grid-column: 1 / -1; } }
+@media (max-width: 520px) { .navbar { padding: 0 4%; } .navbar .sector-nav a { font-size: 9px; padding: 8px; } .logo { font-size: 12px; } .gallery-toolbar.section { align-items: flex-start; flex-direction: column; } .model-grid { gap: 10px; } .album-count { right: 5px; bottom: 5px; font-size: 8px; padding: 3px; } .album-images { grid-template-columns: 1fr; } dialog { padding: 16px; } }
+
+/* Bottom-of-sector navigation */
+.sector-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; padding: 0 6% 64px; }
+.sector-actions .chip { text-align: center; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+
+/* Keep sector swipes inside the viewport. */
+main { overflow-x: clip; }
+
+/* Preserve the image slot while numbered covers are detected. */
+.model-open .model-frame { aspect-ratio: 5 / 4; }
+
+/* A soft bubble entrance for albums and individual image previews. */
+.album-dialog[open], .image-dialog[open] {
+    transform-origin: center;
+    animation: preview-bubble-in 360ms cubic-bezier(.16, 1, .3, 1) both;
+}
+.album-dialog[open]::backdrop, .image-dialog[open]::backdrop {
+    animation: preview-backdrop-in 260ms ease-out both;
+}
+@keyframes preview-bubble-in {
+    0% { opacity: 0; transform: translateY(12px) scale(.955); }
+    75% { opacity: 1; transform: translateY(-1px) scale(1.003); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes preview-backdrop-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .album-dialog[open], .image-dialog[open],
+    .album-dialog[open]::backdrop, .image-dialog[open]::backdrop {
+        animation: none;
+    }
 }

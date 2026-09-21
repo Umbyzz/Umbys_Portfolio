@@ -16,20 +16,15 @@
 <div class="bg-media" id="bgMedia" aria-hidden="true"></div>
 
 <header class="navbar">
-    <a href="#" class="logo">UMBYZ<span class="logo-dot">_</span></a>
-    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
-        <span></span><span></span><span></span>
-    </button>
-    <nav id="navMenu">
-        <a href="#about">About</a>
-        <a href="#weapons">Weapons / Misc</a>
-        <a href="#characters">Character Models</a>
-        <a href="#pricing">Pricing</a>
-        <a href="https://sketchfab.com/UmbyZ" target="_blank" rel="noopener">Sketchfab</a>
+    <a href="#portfolio" class="logo">UMBYZ<span class="logo-dot">_</span></a>
+    <nav class="sector-nav" aria-label="Main sectors">
+        <a href="#portfolio" data-sector="portfolio" aria-current="page">Portfolio</a>
+        <a href="#pricing" data-sector="pricing">Pricing & socials</a>
     </nav>
 </header>
 
 <main>
+<div id="portfolio" class="sector">
 
     <section class="hero">
         <p class="eyebrow">comms closed — for now</p>
@@ -44,6 +39,7 @@
         <nav class="quick-links" aria-label="Jump to section">
             <a href="#about" class="chip">About</a>
             <a href="#weapons" class="chip">Weapons</a>
+            <a href="#objects" class="chip">Objects</a>
             <a href="#characters" class="chip">Character Models</a>
             <a href="#pricing" class="chip">Pricing</a>
             <a href="https://sketchfab.com/UmbyZ" target="_blank" rel="noopener" class="chip chip-external">Sketchfab ↗</a>
@@ -60,10 +56,19 @@
         </p>
     </section>
 
+    <div class="gallery-toolbar section">
+        <span>Make yourself comfortable.</span>
+        <div class="grid-controls" role="group" aria-label="Models per row">
+            <span>View</span>
+            <button type="button" data-columns="1" aria-pressed="false" aria-label="1 model per row">1</button>
+            <button type="button" data-columns="2" aria-pressed="true" aria-label="2 models per row">2</button>
+            <button type="button" data-columns="3" aria-pressed="false" aria-label="3 models per row">3</button>
+        </div>
+    </div>
     <section id="weapons" class="section gallery-section">
         <p class="section-label">// 02 — My works</p>
-        <p class="section-label">// Click to enlarge pics!</p>
-        <h2>Weapons &amp; misc.</h2>
+        <p class="section-label">// Open a model to explore</p>
+        <h2>Weapons.</h2>
 
         <div class="model-grid">
             <article class="model-card">
@@ -88,16 +93,7 @@
                 </div>
             </article>
 
-            <article class="model-card">
-                <div class="model-frame">
-                    <img src="images/misc/scrapped-lantern.jpg" alt="Scrapped lantern model" loading="lazy">
-                </div>
-                <div class="model-caption">
-                    <span class="plate-id">PL-03</span>
-                    <strong>Scrapped Lantern</strong>
-                    <span>Prop model for Pressure.</span>
-                </div>
-            </article>
+
 
             <article class="model-card">
                 <div class="model-frame">
@@ -167,8 +163,22 @@
         </div>
     </section>
 
+    <section id="objects" class="section gallery-section">
+        <p class="section-label">// 03 — objects</p>
+        <h2>Object models.</h2>
+        <div class="model-grid">            <article class="model-card">
+                <div class="model-frame">
+                    <img src="images/misc/scrapped-lantern.jpg" alt="Scrapped lantern model" loading="lazy">
+                </div>
+                <div class="model-caption">
+                    <span class="plate-id">PL-03</span>
+                    <strong>Scrapped Lantern</strong>
+                    <span>Prop model for Pressure.</span>
+                </div>
+            </article></div>
+    </section>
     <section id="characters" class="section gallery-section">
-        <p class="section-label">// 03 — character models</p>
+        <p class="section-label">// 04 — character models</p>
         <h2>Character models.</h2>
 
         <div class="model-grid">
@@ -263,9 +273,14 @@
 
 
     </section>
-
-    <section id="pricing" class="section pricing-section">
-        <p class="section-label">// 04 — pricing</p>
+    <nav class="sector-actions" aria-label="Portfolio next steps">
+        <a href="#portfolio" class="chip">Back to top? ↑</a>
+        <a href="#pricing" class="chip chip-external">To Pricing &amp; socials →</a>
+    </nav>
+</div>
+<div id="commission" class="sector">
+<section id="pricing" class="section pricing-section">
+        <p class="section-label">// 05 — pricing</p>
        
 
         <h2>Price card</h2>
@@ -290,6 +305,9 @@
         </p>
         
         <div class="socials">
+            <a class="social-row" href="https://www.artstation.com/umbyzz" target="_blank" rel="noopener">
+                <span class="social-label">ArtStation</span><span class="social-arrow">↗</span>
+            </a>
             <a class="social-row" href="https://x.com/umby_umbreon" target="_blank" rel="noopener">
                 <span class="social-label">Twitter / X <em>(inactive)</em></span><span class="social-arrow">↗</span>
             </a>
@@ -301,7 +319,10 @@
             </a>
         </div>
     </section>
-
+    <nav class="sector-actions" aria-label="Pricing next steps">
+        <a href="#weapons" class="chip">← Back to models?</a>
+    </nav>
+</div>
 </main>
 
 <footer>
@@ -309,11 +330,14 @@
     <a href="https://sketchfab.com/UmbyZ" target="_blank" rel="noopener">Sketchfab</a>
 </footer>
 
-<div class="lightbox" id="lightbox" aria-hidden="true">
-    <button class="lightbox-close" id="lightboxClose" aria-label="Close preview">&times;</button>
-    <img src="" alt="" id="lightboxImg">
-</div>
-
+<dialog id="album" class="album-dialog" aria-labelledby="albumTitle">
+    <div class="dialog-heading"><div><p class="section-label">// a closer look</p><h2 id="albumTitle"></h2></div><button type="button" class="close-button" id="albumClose" aria-label="Close model album">×</button></div>
+    <p id="albumCaption"></p><div id="albumImages" class="album-images"></div>
+</dialog>
+<dialog id="lightbox" class="image-dialog" aria-label="Enlarged model image">
+    <button type="button" class="close-button" id="lightboxClose" aria-label="Close enlarged image">×</button>
+    <img alt="" id="lightboxImg"><p id="imageCaption"></p>
+</dialog>
 <script src="script.js"></script>
 </body>
 </html>
