@@ -55,3 +55,10 @@ Descriptions are optional. A text file overrides the model's old caption; removi
 ## Background video
 
 Put background.mp4 inside images. Playback is muted and loops automatically. If the browser blocks autoplay, the first click or keypress retries it. Reduced-motion settings intentionally pause the video, and hidden tabs pause until visible again.
+
+## Embedded links in descriptions
+Write links as [visible name](https://example.com). For example:
+
+From [Tsb](https://rblx.games/10449761463). Remade from scratch and rigged.
+
+Only the name is displayed as a clickable link. Links also work in album captions. Ordinary text and line breaks still work; raw HTML is displayed as text. Use HTTP or HTTPS URLs, and encode parentheses in URLs as %28 and %29.

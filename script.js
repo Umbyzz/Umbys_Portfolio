@@ -134,7 +134,7 @@ document.querySelectorAll('.model-card').forEach(card => {
         if (album.open || lightbox.open) return;
         if (sources.length === 1) return enlarge(sources[0],img.alt);
         document.getElementById('albumTitle').textContent = title;
-        document.getElementById('albumCaption').textContent = card.querySelector('.model-caption > span:last-child').textContent;
+        document.getElementById('albumCaption').replaceChildren(...Array.from(card.querySelector('.model-caption > span:last-child').childNodes, node => node.cloneNode(true)));
         const container = document.getElementById('albumImages');
         container.replaceChildren();
         sources.forEach((src,index) => {
