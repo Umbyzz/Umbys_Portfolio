@@ -4,6 +4,20 @@ const rootDefault = path.resolve(__dirname, '..');
 const normalize = value => value.toLowerCase().replace(/[^a-z0-9]/g, '');
 const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const imageURL = value => value.split('/').map(encodeURIComponent).join('/');
+function formatDescription(text) {
+    const pattern = /\[([^\]\n]+)\]\((https?:\/\/[^\s)]+)\)/g;
+    let html = '', last = 0;
+    for (const match of text.matchAll(pattern)) {
+        html += escape(text.slice(last, match.index));
+        let url;
+        try { url = new URL(match[2]); } catch {}
+        html += url && ['https:', 'http:'].includes(url.protocol)
+            ? '<a href="' + escape(url.href) + '" target="_blank" rel="noopener noreferrer">' + escape(match[1]) + '</a>'
+            : escape(match[0]);
+        last = match.index + match[0].length;
+    }
+    return html + escape(text.slice(last));
+}
 function walk(folder, relative = '') {
     if (!fs.existsSync(folder)) return [];
     return fs.readdirSync(folder, {withFileTypes:true}).flatMap(entry => {
@@ -49,7 +63,7 @@ function buildGallery(root = rootDefault) {
         const descriptions = [...group.descriptionFiles].sort();
         if (descriptions.length > 1) throw new Error(`More than one description file for ${title}: ${descriptions.join(', ')}. Keep one description per model.`);
         const description = descriptions.length ? fs.readFileSync(descriptions[0],'utf8').replace(/^\uFEFF/,'').trim() : null;
-        const caption = description === null ? group.detail?.caption || '' : escape(description);
+        const caption = description === null ? group.detail?.caption || '' : formatDescription(description);
         categories[group.category].push({title, files:files.map(file => imageURL(file.src)), detail:group.detail, caption});
     }
     for (const models of Object.values(categories)) models.sort((a,b) => (a.detail?.order ?? 9999) - (b.detail?.order ?? 9999) || a.title.localeCompare(b.title,undefined,{numeric:true}));
@@ -75,4 +89,4 @@ if (require.main === module) {
     fs.writeFileSync(path.join(root,'index.html'), html);
     console.log(Object.entries(categories).map(([name,items]) => `${name}: ${items.length}`).join(', '));
 }
-module.exports = {buildGallery};
+module.exports = {buildGallery, formatDescription};
