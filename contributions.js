@@ -11,7 +11,7 @@ window.CONTRIBUTIONS = [
         title: "A night at Foxy's",
         description: "School project I'm pretty proud of.",
         tag: "Blender",
-        image: "images/fullbody/withered-foxy.png",
+        image: "images/fullbody/Withered%20Foxy/1.png",
         url: "https://umbyy.itch.io/a-night-at-foxys"
     }
 ];

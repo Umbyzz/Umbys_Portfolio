@@ -158,29 +158,65 @@ document.querySelectorAll('.model-card').forEach(card => {
     });
 });
 
-// Optional background, checked in this order. Reduced motion uses still images.
+// Muted looping background; attach before loading so browsers can buffer it.
 (function background() {
     const target = document.getElementById('bgMedia');
-    const files = motion.matches ? ['png', 'jpg', 'jpeg', 'webp'] : ['mp4', 'webm', 'gif', 'png', 'jpg', 'jpeg', 'webp'];
+    const files = ['mp4', 'webm', 'gif', 'png', 'jpg', 'jpeg', 'webp'];
     function attempt(index) {
-        if (index >= files.length) return;
+        if (!target || index >= files.length) return;
         const ext = files[index];
         const src = `images/background.${ext}`;
         if (['mp4', 'webm'].includes(ext)) {
             const video = document.createElement('video');
+            video.defaultMuted = true;
             video.muted = true;
+            video.volume = 0;
             video.loop = true;
+            video.autoplay = !motion.matches;
             video.playsInline = true;
-            video.oncanplay = () => {
-                if (!video.isConnected) target.append(video);
-                target.classList.add('active');
-                video.play().catch(() => {});
-            };
+            video.preload = 'auto';
+            video.setAttribute('muted', '');
+            video.setAttribute('playsinline', '');
+            video.setAttribute('aria-hidden', 'true');
             video.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover';
-            video.onerror = () => { video.remove(); attempt(index + 1); };
+            const removeRetry = () => {
+                document.removeEventListener('pointerdown', play);
+                document.removeEventListener('keydown', play);
+            };
+            function play() {
+                if (!video.isConnected || motion.matches || document.hidden) return;
+                video.muted = true;
+                video.volume = 0;
+                video.play().then(removeRetry).catch(error => {
+                    if (error.name === 'NotAllowedError') {
+                        document.addEventListener('pointerdown', play);
+                        document.addEventListener('keydown', play);
+                    }
+                });
+            }
+            const updateMotion = () => {
+                video.autoplay = !motion.matches;
+                if (motion.matches) { video.pause(); removeRetry(); }
+                else play();
+            };
+            const visibility = () => { if (document.hidden) video.pause(); else play(); };
+            video.onloadeddata = () => target.classList.add('active');
+            video.oncanplay = play;
+            video.onerror = () => {
+                removeRetry();
+                motion.removeEventListener('change', updateMotion);
+                document.removeEventListener('visibilitychange', visibility);
+                video.remove();
+                target.classList.remove('active');
+                attempt(index + 1);
+            };
+            motion.addEventListener('change', updateMotion);
+            document.addEventListener('visibilitychange', visibility);
+            target.append(video);
             video.src = src;
-            motion.addEventListener('change', () => { if (motion.matches) video.pause(); else video.play().catch(() => {}); });
+            video.load();
         } else {
+            if (ext === 'gif' && motion.matches) return attempt(index + 1);
             const image = new Image();
             image.onload = () => { target.style.backgroundImage = `url('${src}')`; target.classList.add('active'); };
             image.onerror = () => attempt(index + 1);
