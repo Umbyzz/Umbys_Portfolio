@@ -3,7 +3,8 @@ const motion = matchMedia('(prefers-reduced-motion: reduce)');
 const portfolio = document.getElementById('portfolio');
 const commission = document.getElementById('commission');
 const contributions = document.getElementById('contributions');
-const sectors = [portfolio, commission, contributions];
+const goofs = document.getElementById('goofs');
+const sectors = [portfolio, commission, contributions, goofs];
 let currentSector;
 let routeVersion = 0;
 let animations = [];
@@ -12,12 +13,12 @@ async function route() {
     animations.forEach(animation => animation.cancel());
     animations = [];
     const hash = location.hash.slice(1);
-    const next = hash === 'pricing' ? commission : hash === 'contributions' ? contributions : portfolio;
+    const next = hash === 'pricing' ? commission : hash === 'contributions' ? contributions : hash === 'goofs' ? goofs : portfolio;
     const changed = currentSector !== next;
     const direction = sectors.indexOf(next) > sectors.indexOf(currentSector) ? 1 : -1;
     const animate = changed && currentSector && !motion.matches;
     document.querySelectorAll('[data-sector]').forEach(link => {
-        if (link.dataset.sector === (next === portfolio ? 'portfolio' : next === commission ? 'pricing' : 'contributions')) link.setAttribute('aria-current', 'page');
+        if (link.dataset.sector === (next === portfolio ? 'portfolio' : next === commission ? 'pricing' : next === contributions ? 'contributions' : 'goofs')) link.setAttribute('aria-current', 'page');
         else link.removeAttribute('aria-current');
     });
     if (animate) {
@@ -77,10 +78,49 @@ document.querySelectorAll('[data-columns]').forEach(button => button.addEventLis
 const album = document.getElementById('album');
 const lightbox = document.getElementById('lightbox');
 const fullImage = document.getElementById('lightboxImg');
-function enlarge(src, alt) {
-    fullImage.src = src;
-    fullImage.alt = alt;
-    document.getElementById('imageCaption').textContent = alt;
+let previewImages = [];
+let previewIndex = 0;
+const previewNav = document.createElement('div');
+previewNav.className = 'preview-navigation';
+previewNav.hidden = true;
+const previousImage = document.createElement('button');
+const nextImage = document.createElement('button');
+const previewPosition = document.createElement('span');
+previewPosition.setAttribute('aria-live', 'polite');
+for (const [button, label, symbol] of [[previousImage, 'Previous image', '←'], [nextImage, 'Next image', '→']]) {
+    button.type = 'button';
+    button.className = 'preview-arrow';
+    button.setAttribute('aria-label', label);
+    button.textContent = symbol;
+}
+previewNav.append(previousImage, previewPosition, nextImage);
+document.getElementById('imageCaption').after(previewNav);
+function renderPreview() {
+    const image = previewImages[previewIndex];
+    fullImage.src = image.src;
+    fullImage.alt = image.alt;
+    document.getElementById('imageCaption').textContent = image.alt;
+    previewPosition.textContent = (previewIndex + 1) + ' / ' + previewImages.length;
+    previewNav.hidden = previewImages.length < 2;
+}
+function stepPreview(direction) {
+    if (!lightbox.open || lightbox.classList.contains('is-closing') || previewImages.length < 2) return;
+    previewIndex = (previewIndex + direction + previewImages.length) % previewImages.length;
+    renderPreview();
+}
+previousImage.addEventListener('click', () => stepPreview(-1));
+nextImage.addEventListener('click', () => stepPreview(1));
+lightbox.addEventListener('keydown', event => {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        event.preventDefault();
+        stepPreview(event.key === 'ArrowLeft' ? -1 : 1);
+    }
+});
+function enlarge(src, alt, images = [{src, alt}], index = 0) {
+    previewImages = images;
+    previewIndex = index;
+    renderPreview();
     lightbox.showModal();
 }
 function closePreview(dialog) {
@@ -146,8 +186,9 @@ document.querySelectorAll('.model-card').forEach(card => {
 
             shot.src = src;
             button.append(shot);
+            button.style.setProperty('--shot-delay', Math.min(index * 85, 680) + 'ms');
             container.append(button);
-            button.addEventListener('click',() => {if (!lightbox.open) enlarge(src,shot.alt);});
+            button.addEventListener('click',() => {if (!lightbox.open) enlarge(src,shot.alt,sources.map((source, i) => ({src: source, alt: title + " — image " + (i+1)})),index);});
         });
         album.showModal();
     });
@@ -327,3 +368,14 @@ exitContinue.addEventListener('click', () => closePreview(exitDialog));
         }
     }).observe(document.body, {subtree: true, childList: true, attributes: true, attributeFilter: ['src']});
 })();
+
+// Edit the visible comms text in index.html; the dot follows open/closed wording.
+const commissionStatus = document.querySelector('.commission-status');
+if (commissionStatus) {
+    const syncStatus = () => {
+        const text = commissionStatus.textContent.toLowerCase();
+        commissionStatus.dataset.status = /\bclosed\b/.test(text) ? 'closed' : /\bopen\b/.test(text) ? 'open' : 'unknown';
+    };
+    syncStatus();
+    new MutationObserver(syncStatus).observe(commissionStatus, {childList: true, characterData: true, subtree: true});
+}
