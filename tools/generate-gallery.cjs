@@ -28,7 +28,16 @@ function buildGallery(root = rootDefault) {
             const rawName = (match ? match[1] : stem) || path.posix.basename(path.posix.dirname(relative));
             const detail = aliases.get(normalize(rawName));
             const key = category + ':' + (detail ? detail.aliases[0] : normalize(path.posix.dirname(relative) + '/' + rawName));
-            if (!groups.has(key)) groups.set(key,{category, detail, name:rawName, files:[]});
+            if (!groups.has(key)) groups.set(key,{category, detail, name:rawName, files:[], descriptionFiles:new Set()});
+            const imageFolder = path.join(imageRoot,dir.name,path.posix.dirname(relative));
+            const descriptionNames = [rawName, ...(detail?.aliases || [])].map(name => normalize(name));
+            for (const entry of fs.readdirSync(imageFolder,{withFileTypes:true})) {
+                if (!entry.isFile() || !/\.txt$/i.test(entry.name)) continue;
+                const name = entry.name.replace(/\.txt$/i,'');
+                if (descriptionNames.includes(normalize(name)) || (path.posix.dirname(relative) !== '.' && name.toLowerCase() === 'description')) {
+                    groups.get(key).descriptionFiles.add(path.join(imageFolder,entry.name));
+                }
+            }
             groups.get(key).files.push({src:`images/${dir.name}/${relative}`, number:match ? Number(match[2]) : null});
         }
     }
@@ -37,7 +46,11 @@ function buildGallery(root = rootDefault) {
         let files = group.files.some(file => file.number !== null) ? group.files.filter(file => file.number !== null) : group.files;
         files.sort((a,b) => (a.number ?? 0) - (b.number ?? 0) || a.src.localeCompare(b.src));
         const title = group.detail?.title || group.name.replace(/[_-]+/g,' ').replace(/([a-z])([A-Z])/g,'$1 $2').replace(/^./,c => c.toUpperCase());
-        categories[group.category].push({title, files:files.map(file => imageURL(file.src)), detail:group.detail});
+        const descriptions = [...group.descriptionFiles].sort();
+        if (descriptions.length > 1) throw new Error(`More than one description file for ${title}: ${descriptions.join(', ')}. Keep one description per model.`);
+        const description = descriptions.length ? fs.readFileSync(descriptions[0],'utf8').replace(/^\uFEFF/,'').trim() : null;
+        const caption = description === null ? group.detail?.caption || '' : escape(description);
+        categories[group.category].push({title, files:files.map(file => imageURL(file.src)), detail:group.detail, caption});
     }
     for (const models of Object.values(categories)) models.sort((a,b) => (a.detail?.order ?? 9999) - (b.detail?.order ?? 9999) || a.title.localeCompare(b.title,undefined,{numeric:true}));
     let html = fs.readFileSync(path.join(root,'index.html'),'utf8');
@@ -47,7 +60,7 @@ function buildGallery(root = rootDefault) {
                 <div class="model-caption">
                     <span class="plate-id">${escape(model.detail?.plate || category.slice(0,3).toUpperCase() + '-' + String(index+1).padStart(2,'0'))}</span>
                     <strong>${escape(model.title)}</strong>
-                    <span>${model.detail?.caption || ''}</span>
+                    <span>${model.caption}</span>
                 </div>
             </article>`).join('\n');
         const pattern = new RegExp('(<section id="' + category + '"[\\s\\S]*?<div class="model-grid">)[\\s\\S]*?(</section>)');

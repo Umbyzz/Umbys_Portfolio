@@ -783,3 +783,6 @@ main { overflow-x: clip; }
     .contribution-grid { grid-template-columns: 1fr; }
     .contribution-open { min-height: 270px; padding: 22px; }
 }
+
+/* Preserve line breaks in model descriptions and album captions. */
+.model-caption > span:last-child, #albumCaption { white-space: pre-line; }

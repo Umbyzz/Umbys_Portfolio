@@ -12,7 +12,7 @@ Use one model name per group. Spaces, hyphens and underscores in new model names
 
 When numbered shots exist, they replace that model's unnumbered cover in the album. Removing a file removes it from the next generated album; removing every file removes its card. Moving the files to another category folder moves the card.
 
-Existing names, descriptions and credits are preserved in `tools/model-details.json`. New models receive a title automatically and no invented description. That optional metadata file is where custom captions can be added later.
+Existing names, descriptions and credits are preserved in `tools/model-details.json`. New models receive a title automatically and no invented description. You can now add captions using optional text files as described below.
 
 ## One-time GitHub setup
 
@@ -29,3 +29,25 @@ Double-click `START-PREVIEW.cmd` (requires Node.js LTS). Keep its window open. A
 The preview is at http://127.0.0.1:8767. Opening index.html directly shows the last generated gallery; use the launcher for live folder discovery. To update the saved HTML manually, run `node tools/generate-gallery.cjs` from the website folder.
 
 Albums and enlarged pictures fade and gently shrink on close, including the × button, Escape, and clicking outside. Reduced-motion preferences skip the animation.
+
+## Add descriptions without editing code
+
+Recommended: keep each model in its own folder:
+
+```text
+images/Object/Ball/
+  1.png
+  2.png
+  3.png
+  description.txt
+```
+
+The folder name becomes the model title. Write your description and any credits in description.txt using Notepad, saved as UTF-8. Line breaks are preserved. Text is displayed as plain text, not HTML.
+
+Your existing naming style also works: ball1.png, ball2.png, ball3.png and ball.txt beside them in images/Object. Use one text file per model, not one per image. Do not supply both Ball.txt and description.txt for the same model.
+
+Descriptions are optional. A text file overrides the model's old caption; removing it restores any original caption stored in tools/model-details.json. An empty text file clears the caption. Refresh the local preview after changes, then commit/push the images and text files to update the live site.
+
+## Background video
+
+Put background.mp4 inside images. Playback is muted and loops automatically. If the browser blocks autoplay, the first click or keypress retries it. Reduced-motion settings intentionally pause the video, and hidden tabs pause until visible again.
