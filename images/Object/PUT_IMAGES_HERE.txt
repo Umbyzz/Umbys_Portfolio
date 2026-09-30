@@ -1,0 +1,3 @@
+Expected filenames in this folder:
+scrapped-lantern.jpg
+toy-knife.jpg
