@@ -786,3 +786,17 @@ main { overflow-x: clip; }
 
 /* Preserve line breaks in model descriptions and album captions. */
 .model-caption > span:last-child, #albumCaption { white-space: pre-line; }
+
+/* Tiny pixel loader: no GIF request, and no layout-blocking splash screen. */
+.media-host { position: relative; }
+.media-indicator { position: absolute; inset: 0; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 12px; background: #0c1725; color: #8faac5; font-size: 10px; text-align: center; pointer-events: none; }
+.loading-pixels { width: 9px; height: 9px; background: #598fd1; box-shadow: -16px 0 #294b74, 16px 0 #294b74; animation: pixel-loading 1s ease-in-out infinite; }
+@keyframes pixel-loading { 0%,100% { opacity: .45; transform: translateY(2px); } 50% { opacity: 1; transform: translateY(-2px); box-shadow: -16px 0 #598fd1, 16px 0 #598fd1; } }
+.media-host[data-media-state="loading"] > img, .media-host[data-media-state="error"] > img { opacity: 0; }
+.image-stage[data-media-state="loading"], .image-stage[data-media-state="error"] { min-width: min(70vw, 500px); min-height: min(50dvh, 360px); }
+.album-images button.media-host { aspect-ratio: 5 / 4; }
+.contribution-open > .media-indicator { inset: 12px 12px auto auto; padding: 14px; border-radius: 10px; background: rgba(12,23,37,.9); font-size: 9px; }
+@media (prefers-reduced-motion: reduce) { .loading-pixels { animation: none; } }
+.background-loading { position: fixed; bottom: 18px; right: 18px; z-index: 5; padding: 12px 16px; border-radius: 10px; background: #0c1725; color: #8faac5; font-size: 10px; pointer-events: none; }
+.background-loading::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 22px; background: #598fd1; animation: pixel-loading 1s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .background-loading::before { animation: none; } }

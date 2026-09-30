@@ -129,12 +129,7 @@ document.querySelectorAll('.model-card').forEach(card => {
         badge.textContent = `▱ ${sources.length} images`;
         trigger.append(badge);
     }
-    img.addEventListener('error', () => {
-        frame.classList.add('missing');
-        frame.dataset.label = `${title} — image unavailable`;
-        img.hidden = true;
-        if (sources.length === 1) trigger.disabled = true;
-    });
+
     trigger.addEventListener('click', () => {
         if (album.open || lightbox.open) return;
         if (sources.length === 1) return enlarge(sources[0],img.alt);
@@ -148,7 +143,7 @@ document.querySelectorAll('.model-card').forEach(card => {
             button.setAttribute('aria-label',`Enlarge ${title}, image ${index+1}`);
             const shot = document.createElement('img');
             shot.alt = `${title} — image ${index+1}`;
-            shot.onerror = () => {button.disabled = true;button.textContent = 'Image unavailable';};
+
             shot.src = src;
             button.append(shot);
             container.append(button);
@@ -161,9 +156,13 @@ document.querySelectorAll('.model-card').forEach(card => {
 // Muted looping background; attach before loading so browsers can buffer it.
 (function background() {
     const target = document.getElementById('bgMedia');
+    const loading = document.createElement('div');
+    loading.className = 'background-loading';
+    loading.textContent = 'Loading background…';
+    document.body.append(loading);
     const files = ['mp4', 'webm', 'gif', 'png', 'jpg', 'jpeg', 'webp'];
     function attempt(index) {
-        if (!target || index >= files.length) return;
+        if (!target || index >= files.length) { loading.remove(); return; }
         const ext = files[index];
         const src = `images/background.${ext}`;
         if (['mp4', 'webm'].includes(ext)) {
@@ -200,7 +199,7 @@ document.querySelectorAll('.model-card').forEach(card => {
                 else play();
             };
             const visibility = () => { if (document.hidden) video.pause(); else play(); };
-            video.onloadeddata = () => target.classList.add('active');
+            video.onloadeddata = () => { target.classList.add('active'); loading.remove(); };
             video.oncanplay = play;
             video.onerror = () => {
                 removeRetry();
@@ -218,7 +217,7 @@ document.querySelectorAll('.model-card').forEach(card => {
         } else {
             if (ext === 'gif' && motion.matches) return attempt(index + 1);
             const image = new Image();
-            image.onload = () => { target.style.backgroundImage = `url('${src}')`; target.classList.add('active'); };
+            image.onload = () => { loading.remove(); target.style.backgroundImage = `url('${src}')`; target.classList.add('active'); };
             image.onerror = () => attempt(index + 1);
             image.src = src;
         }
@@ -241,7 +240,7 @@ for (const project of window.CONTRIBUTIONS || []) {
         image.src = project.image;
         image.alt = '';
         image.loading = 'lazy';
-        image.onerror = () => image.remove();
+
         button.append(image);
     }
     const copy = document.createElement('span');
@@ -272,3 +271,59 @@ for (const project of window.CONTRIBUTIONS || []) {
 }
 document.getElementById('externalCancel').addEventListener('click', () => closePreview(exitDialog));
 exitContinue.addEventListener('click', () => closePreview(exitDialog));
+
+// Lightweight loading states for current and newly opened gallery images.
+(function mediaLoading() {
+    function indicator(host, label) {
+        host.classList.add('media-host');
+        const status = document.createElement('span');
+        status.className = 'media-indicator';
+        status.setAttribute('role', 'status');
+        const pixels = document.createElement('span');
+        pixels.className = 'loading-pixels';
+        pixels.setAttribute('aria-hidden', 'true');
+        const text = document.createElement('span');
+        status.append(pixels, text);
+        host.append(status);
+        return state => {
+            host.dataset.mediaState = state;
+            host.setAttribute('aria-busy', String(state === 'loading'));
+            status.hidden = state === 'ready';
+            pixels.hidden = state === 'error';
+            text.textContent = state === 'error' ? 'Image unavailable' : label;
+        };
+    }
+    const tracked = new WeakMap();
+    function watch(image) {
+        if (tracked.has(image)) { tracked.get(image)(); return; }
+        let host = image.parentElement;
+        if (image.id === 'lightboxImg') {
+            host = document.createElement('div');
+            host.className = 'image-stage';
+            image.before(host);
+            host.append(image);
+        }
+        if (!host.matches('.model-frame, .album-images button, .contribution-open, .image-stage')) return;
+        const set = indicator(host, 'Loading image…');
+        const settle = () => set(image.naturalWidth ? 'ready' : 'error');
+        const reset = () => {
+            set('loading');
+            if (image.getAttribute('src') && image.complete) settle();
+        };
+        tracked.set(image, reset);
+        image.addEventListener('load', settle);
+        image.addEventListener('error', () => set('error'));
+        reset();
+    }
+    document.querySelectorAll('img').forEach(watch);
+    new MutationObserver(records => {
+        for (const record of records) {
+            if (record.type === 'attributes') watch(record.target);
+            else record.addedNodes.forEach(node => {
+                if (node.nodeType !== 1) return;
+                if (node.matches('img')) watch(node);
+                node.querySelectorAll('img').forEach(watch);
+            });
+        }
+    }).observe(document.body, {subtree: true, childList: true, attributes: true, attributeFilter: ['src']});
+})();
