@@ -863,3 +863,5 @@ main { overflow-x: clip; }
 .more-dog.section { margin: 0 auto; padding-top: 0; text-align: center; }
 .more-dog img { display: block; width: 267px; max-width: 100%; height: auto; margin: 0 auto 20px; border-radius: 12px; }
 .more-dog figcaption { color: var(--muted); font-size: 13px; line-height: 1.8; }
+/* Tiny decorative placeholder in place of the old model IDs. */
+.model-caption .model-label-dog { display: block; width: 24px; height: 21px; object-fit: contain; border-radius: 3px; align-self: center; }

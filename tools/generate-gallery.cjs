@@ -115,7 +115,7 @@ function buildGallery(root = rootDefault) {
         const cards = models.map((model,index) => `            <article class="model-card" data-audio="${escape(JSON.stringify(model.files.filter(src => /\.mp4$/i.test(src) && hasAudio(path.join(root, decodeURIComponent(src))))))}" data-images="${escape(JSON.stringify(model.files.slice(1)))}">
                 <div class="model-frame">${cover(model.files[0], model.title)}</div>
                 <div class="model-caption">
-                    <span class="plate-id">${escape((model.detail?.plate || category.slice(0,3).toUpperCase() + String(index+1).padStart(2,'0')).replace(/-/g,''))}</span>
+                    <img class="model-label-dog" src="images/more/uxors-dog.png" alt="" aria-hidden="true" width="24" height="21" loading="lazy">
                     <strong>${escape(model.title)}</strong>
                     <span>${model.caption}</span>
                 </div>
