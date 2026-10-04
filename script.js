@@ -3,7 +3,7 @@ const motion = matchMedia('(prefers-reduced-motion: reduce)');
 const portfolio = document.getElementById('portfolio');
 const commission = document.getElementById('commission');
 const contributions = document.getElementById('contributions');
-const goofs = document.getElementById('goofs');
+const goofs = document.getElementById('more');
 const sectors = [portfolio, commission, contributions, goofs];
 let currentSector;
 let routeVersion = 0;
@@ -13,12 +13,12 @@ async function route() {
     animations.forEach(animation => animation.cancel());
     animations = [];
     const hash = location.hash.slice(1);
-    const next = hash === 'pricing' ? commission : hash === 'contributions' ? contributions : hash === 'goofs' ? goofs : portfolio;
+    const next = hash === 'pricing' ? commission : hash === 'contributions' ? contributions : ['more', 'goofs', 'about'].includes(hash) ? goofs : portfolio;
     const changed = currentSector !== next;
     const direction = sectors.indexOf(next) > sectors.indexOf(currentSector) ? 1 : -1;
     const animate = changed && currentSector && !motion.matches;
     document.querySelectorAll('[data-sector]').forEach(link => {
-        if (link.dataset.sector === (next === portfolio ? 'portfolio' : next === commission ? 'pricing' : next === contributions ? 'contributions' : 'goofs')) link.setAttribute('aria-current', 'page');
+        if (link.dataset.sector === (next === portfolio ? 'portfolio' : next === commission ? 'pricing' : next === contributions ? 'contributions' : 'more')) link.setAttribute('aria-current', 'page');
         else link.removeAttribute('aria-current');
     });
     if (animate) {
@@ -90,7 +90,11 @@ const videoError = document.createElement('p');
 videoError.hidden = true;
 videoError.textContent = 'Video unavailable. Try an MP4 encoded with H.264.';
 videoError.setAttribute('role', 'status');
-videoStage.append(fullVideo, videoError);
+const soundNotice = document.createElement('p');
+soundNotice.className = 'sound-notice';
+soundNotice.textContent = 'Has sound!';
+soundNotice.hidden = true;
+videoStage.append(soundNotice, fullVideo, videoError);
 fullImage.after(videoStage);
 fullVideo.addEventListener('error', () => { videoError.hidden = false; });
 lightbox.addEventListener('close', () => fullVideo.pause());
@@ -116,6 +120,9 @@ function renderPreview() {
     fullVideo.pause();
     const video = isVideo(image.src);
     videoStage.hidden = !video;
+    soundNotice.hidden = !video || !document.querySelector('.model-card[data-audio]') || !Array.from(document.querySelectorAll('.model-card[data-audio]')).some(card => {
+        try { return JSON.parse(card.dataset.audio).includes(image.src); } catch { return false; }
+    });
     (fullImage.closest('.image-stage') || fullImage).hidden = video;
     videoError.hidden = true;
     if (video) {
@@ -187,18 +194,23 @@ document.querySelectorAll('.model-card').forEach(card => {
     let extras = [];
     try { extras = JSON.parse(card.dataset.images || '[]'); } catch {}
     const sources = [...new Set([img.getAttribute('src'), ...(Array.isArray(extras) ? extras : [])])];
-    const mediaLabel = sources.some(isVideo) ? 'items' : 'images';
+    const videoCount = sources.filter(isVideo).length;
+    const imageCount = sources.length - videoCount;
+    const mediaLabel = [
+        imageCount ? imageCount + (imageCount === 1 ? ' Image' : ' Images') : '',
+        videoCount ? videoCount + (videoCount === 1 ? ' Video' : ' Videos') : ''
+    ].filter(Boolean).join(' · ');
     const trigger = document.createElement('button');
     trigger.type = 'button';
     trigger.className = 'model-open' + (sources.length > 1 ? ' has-album' : '');
-    trigger.setAttribute('aria-label', sources.length > 1 ? `Open ${title} album, ${sources.length} ${mediaLabel}` : `Enlarge ${title}`);
+    trigger.setAttribute('aria-label', sources.length > 1 ? `Open ${title} album, ${mediaLabel}` : `Enlarge ${title}`);
     trigger.setAttribute('aria-haspopup','dialog');
     frame.before(trigger);
     trigger.append(frame);
     if (sources.length > 1) {
         const badge = document.createElement('span');
         badge.className = 'album-count';
-        badge.textContent = `▱ ${sources.length} images`;
+        badge.textContent = mediaLabel;
         trigger.append(badge);
     }
 
