@@ -197,9 +197,9 @@ document.querySelectorAll('.model-card').forEach(card => {
     const videoCount = sources.filter(isVideo).length;
     const imageCount = sources.length - videoCount;
     const mediaLabel = [
-        imageCount ? imageCount + (imageCount === 1 ? ' Image' : ' Images') : '',
-        videoCount ? videoCount + (videoCount === 1 ? ' Video' : ' Videos') : ''
-    ].filter(Boolean).join(' · ');
+        imageCount ? imageCount + 'IMG' : '',
+        videoCount ? videoCount + 'VID' : ''
+    ].filter(Boolean).join('/');
     const trigger = document.createElement('button');
     trigger.type = 'button';
     trigger.className = 'model-open' + (sources.length > 1 ? ' has-album' : '');
