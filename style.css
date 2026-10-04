@@ -840,7 +840,7 @@ main { overflow-x: clip; }
 .image-dialog img { max-height: 58dvh; }
 
 /* Fourth sector and wrapping navigation on narrow phones. */
-#goofs { padding-top: 80px; }
+#more { padding-top: 80px; }
 .navbar .sector-nav { flex-wrap: wrap; justify-content: center; max-width: 100%; }
 @media (max-width: 420px) { .navbar .sector-nav a { font-size: 8px; padding: 8px 5px; } }
 
@@ -851,3 +851,15 @@ main { overflow-x: clip; }
 .video-stage { width: min(80vw, 960px); }
 .video-stage video { display: block; width: 100%; max-height: 58dvh; background: #080d13; }
 .video-stage p { font-size: 12px; color: var(--muted); }
+
+/* Media counts join the image corner instead of floating over it. */
+.model-open > .album-count { right: 0; bottom: 0; max-width: 100%; box-sizing: border-box; border-right: 0; border-bottom: 0; border-radius: 10px 0 0 0; padding: 7px 10px; line-height: 1.5; text-align: right; background: #0c1725ed; }
+@media (max-width: 520px) { .model-open > .album-count { padding: 5px 7px; } }
+
+.video-stage .sound-notice { color: #ebc581; font-size: 12px; margin: 0 0 10px; }
+
+.contribution-description { white-space: pre-line; }
+
+.more-dog.section { margin: 0 auto; padding-top: 0; text-align: center; }
+.more-dog img { display: block; width: 267px; max-width: 100%; height: auto; margin: 0 auto 20px; border-radius: 12px; }
+.more-dog figcaption { color: var(--muted); font-size: 13px; line-height: 1.8; }

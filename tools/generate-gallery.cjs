@@ -31,6 +31,44 @@ function walk(folder, relative = '') {
         return entry.isFile() && /\.(jpe?g|png|gif|webp|avif|mp4)$/i.test(name) ? [name] : [];
     });
 }
+// Inspect MP4 track handlers without decoding or loading the video into memory.
+function hasAudio(file) {
+    const fd = fs.openSync(file, 'r');
+    const size = fs.fstatSync(fd).size;
+    function scan(start, end) {
+        for (let offset = start; offset + 8 <= end;) {
+            const header = Buffer.alloc(16);
+            fs.readSync(fd, header, 0, Math.min(16, end-offset), offset);
+            let length = header.readUInt32BE(0), bytes = 8;
+            const type = header.toString('ascii',4,8);
+            if (length === 1) { if(offset+16>end) return false; length=Number(header.readBigUInt64BE(8)); bytes=16; }
+            if (length === 0) length=end-offset;
+            if (!Number.isSafeInteger(length) || length < bytes || offset+length>end) return false;
+            if (type === 'hdlr' && length >= bytes+12) {
+                const handler=Buffer.alloc(12); fs.readSync(fd,handler,0,12,offset+bytes);
+                if(handler.toString('ascii',8,12)==='soun') return true;
+            }
+            if (['moov','trak','mdia'].includes(type) && scan(offset+bytes,offset+length)) return true;
+            offset += length;
+        }
+        return false;
+    }
+    try { return scan(0,size); } finally { fs.closeSync(fd); }
+}
+function buildContributions(root) {
+    const base = path.join(root, 'images/contributions');
+    if (!fs.existsSync(base)) return null;
+    const entries = fs.readdirSync(base, {withFileTypes:true}).filter(x => x.isDirectory()).sort((a,b)=>a.name.localeCompare(b.name));
+    const projects = entries.map(entry => {
+        const folder = path.join(base,entry.name);
+        const read = name => fs.existsSync(path.join(folder,name)) ? fs.readFileSync(path.join(folder,name),'utf8').replace(/^\uFEFF/,'').trim() : '';
+        const images = fs.readdirSync(folder).filter(name => /\.(png|jpe?g|gif|webp|avif)$/i.test(name)).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+        const url = read('url.txt');
+        if(url) { let parsed; try { parsed=new URL(url); } catch {} if(!parsed || parsed.protocol!=='https:') throw Error('Use an HTTPS link in '+folder+'/url.txt'); }
+        return {title:entry.name,description:read('description.txt'),tag:read('tag.txt'),url,image:images.length ? imageURL('images/contributions/'+entry.name+'/'+images[0]) : ''};
+    });
+    return 'window.CONTRIBUTIONS = ' + JSON.stringify(projects,null,2) + ';\n';
+}
 function buildGallery(root = rootDefault) {
     const metadata = JSON.parse(fs.readFileSync(path.join(root,'tools/model-details.json'),'utf8'));
     const aliases = new Map(metadata.flatMap(item => item.aliases.map(alias => [normalize(alias), item])));
@@ -74,10 +112,10 @@ function buildGallery(root = rootDefault) {
     for (const models of Object.values(categories)) models.sort((a,b) => (a.detail?.order ?? 9999) - (b.detail?.order ?? 9999) || a.title.localeCompare(b.title,undefined,{numeric:true}));
     let html = fs.readFileSync(path.join(root,'index.html'),'utf8');
     for (const [category, models] of Object.entries(categories)) {
-        const cards = models.map((model,index) => `            <article class="model-card" data-images="${escape(JSON.stringify(model.files.slice(1)))}">
+        const cards = models.map((model,index) => `            <article class="model-card" data-audio="${escape(JSON.stringify(model.files.filter(src => /\.mp4$/i.test(src) && hasAudio(path.join(root, decodeURIComponent(src))))))}" data-images="${escape(JSON.stringify(model.files.slice(1)))}">
                 <div class="model-frame">${cover(model.files[0], model.title)}</div>
                 <div class="model-caption">
-                    <span class="plate-id">${escape(model.detail?.plate || category.slice(0,3).toUpperCase() + '-' + String(index+1).padStart(2,'0'))}</span>
+                    <span class="plate-id">${escape((model.detail?.plate || category.slice(0,3).toUpperCase() + String(index+1).padStart(2,'0')).replace(/-/g,''))}</span>
                     <strong>${escape(model.title)}</strong>
                     <span>${model.caption}</span>
                 </div>
@@ -92,6 +130,8 @@ if (require.main === module) {
     const root = process.argv[2] ? path.resolve(process.argv[2]) : rootDefault;
     const {html,categories} = buildGallery(root);
     fs.writeFileSync(path.join(root,'index.html'), html);
+    const projects = buildContributions(root);
+    if (projects !== null) fs.writeFileSync(path.join(root,'contributions.js'), projects);
     console.log(Object.entries(categories).map(([name,items]) => `${name}: ${items.length}`).join(', '));
 }
-module.exports = {buildGallery, formatDescription};
+module.exports = {buildGallery, formatDescription, buildContributions};

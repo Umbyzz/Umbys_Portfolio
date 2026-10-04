@@ -1,7 +1,7 @@
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
-const {buildGallery} = require('./generate-gallery.cjs');
+const {buildGallery, buildContributions} = require('./generate-gallery.cjs');
 const root = process.argv[2] ? path.resolve(process.argv[2]) : path.resolve(__dirname,'..');
 const port = Number(process.env.PORT || 8767);
 http.createServer((req,res) => {
@@ -11,6 +11,10 @@ http.createServer((req,res) => {
             res.setHeader('Content-Type','text/html; charset=utf-8');
             res.setHeader('Cache-Control','no-store');
             return res.end(buildGallery(root).html);
+        }
+        if (requested === '/contributions.js') {
+            const projects = buildContributions(root);
+            if (projects !== null) { res.setHeader('Content-Type','text/javascript; charset=utf-8'); res.setHeader('Cache-Control','no-store'); return res.end(projects); }
         }
         const file = path.resolve(root,'.' + requested);
         if (!file.startsWith(root + path.sep) || requested.split('/').some(part => part.startsWith('.'))) {res.writeHead(403);return res.end();}
