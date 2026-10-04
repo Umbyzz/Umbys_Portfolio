@@ -18,12 +18,17 @@ function formatDescription(text) {
     }
     return html + escape(text.slice(last));
 }
+function cover(src, title) {
+    return /\.mp4$/i.test(src)
+        ? '<video src="' + escape(src) + '" muted playsinline preload="metadata" aria-label="' + escape(title) + ' video"></video><span class="video-badge">▶ Video</span>'
+        : '<img src="' + escape(src) + '" alt="' + escape(title) + ' model" loading="lazy">';
+}
 function walk(folder, relative = '') {
     if (!fs.existsSync(folder)) return [];
     return fs.readdirSync(folder, {withFileTypes:true}).flatMap(entry => {
         const name = relative + entry.name;
         if (entry.isDirectory()) return walk(path.join(folder,entry.name), name + '/');
-        return entry.isFile() && /\.(jpe?g|png|gif|webp|avif)$/i.test(name) ? [name] : [];
+        return entry.isFile() && /\.(jpe?g|png|gif|webp|avif|mp4)$/i.test(name) ? [name] : [];
     });
 }
 function buildGallery(root = rootDefault) {
@@ -70,7 +75,7 @@ function buildGallery(root = rootDefault) {
     let html = fs.readFileSync(path.join(root,'index.html'),'utf8');
     for (const [category, models] of Object.entries(categories)) {
         const cards = models.map((model,index) => `            <article class="model-card" data-images="${escape(JSON.stringify(model.files.slice(1)))}">
-                <div class="model-frame"><img src="${escape(model.files[0])}" alt="${escape(model.title)} model" loading="lazy"></div>
+                <div class="model-frame">${cover(model.files[0], model.title)}</div>
                 <div class="model-caption">
                     <span class="plate-id">${escape(model.detail?.plate || category.slice(0,3).toUpperCase() + '-' + String(index+1).padStart(2,'0'))}</span>
                     <strong>${escape(model.title)}</strong>

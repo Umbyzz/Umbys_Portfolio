@@ -78,6 +78,22 @@ document.querySelectorAll('[data-columns]').forEach(button => button.addEventLis
 const album = document.getElementById('album');
 const lightbox = document.getElementById('lightbox');
 const fullImage = document.getElementById('lightboxImg');
+const isVideo = src => /\.mp4(?:[?#]|$)/i.test(src);
+const videoStage = document.createElement('div');
+videoStage.className = 'video-stage';
+videoStage.hidden = true;
+const fullVideo = document.createElement('video');
+fullVideo.controls = true;
+fullVideo.playsInline = true;
+fullVideo.preload = 'metadata';
+const videoError = document.createElement('p');
+videoError.hidden = true;
+videoError.textContent = 'Video unavailable. Try an MP4 encoded with H.264.';
+videoError.setAttribute('role', 'status');
+videoStage.append(fullVideo, videoError);
+fullImage.after(videoStage);
+fullVideo.addEventListener('error', () => { videoError.hidden = false; });
+lightbox.addEventListener('close', () => fullVideo.pause());
 let previewImages = [];
 let previewIndex = 0;
 const previewNav = document.createElement('div');
@@ -97,8 +113,21 @@ previewNav.append(previousImage, previewPosition, nextImage);
 document.getElementById('imageCaption').after(previewNav);
 function renderPreview() {
     const image = previewImages[previewIndex];
-    fullImage.src = image.src;
-    fullImage.alt = image.alt;
+    fullVideo.pause();
+    const video = isVideo(image.src);
+    videoStage.hidden = !video;
+    (fullImage.closest('.image-stage') || fullImage).hidden = video;
+    videoError.hidden = true;
+    if (video) {
+        fullVideo.src = image.src;
+        fullVideo.setAttribute('aria-label', image.alt);
+        fullVideo.load();
+    } else {
+        fullVideo.removeAttribute('src');
+        fullVideo.load();
+        fullImage.src = image.src;
+        fullImage.alt = image.alt;
+    }
     document.getElementById('imageCaption').textContent = image.alt;
     previewPosition.textContent = (previewIndex + 1) + ' / ' + previewImages.length;
     previewNav.hidden = previewImages.length < 2;
@@ -111,6 +140,7 @@ function stepPreview(direction) {
 previousImage.addEventListener('click', () => stepPreview(-1));
 nextImage.addEventListener('click', () => stepPreview(1));
 lightbox.addEventListener('keydown', event => {
+    if (event.target === fullVideo) return; // Native arrow keys seek the video.
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
         event.preventDefault();
@@ -124,6 +154,7 @@ function enlarge(src, alt, images = [{src, alt}], index = 0) {
     lightbox.showModal();
 }
 function closePreview(dialog) {
+    if (dialog === lightbox) fullVideo.pause();
     if (!dialog.open || dialog.classList.contains('is-closing')) return;
     if (motion.matches) { dialog.close(); return; }
     dialog.classList.add('is-closing');
@@ -150,16 +181,17 @@ for (const [dialog, closeId] of [[album, 'albumClose'], [lightbox, 'lightboxClos
 }
 // The folder scanner writes each card and its exact album paths before publication.
 document.querySelectorAll('.model-card').forEach(card => {
-    const img = card.querySelector('img');
+    const img = card.querySelector('img, video');
     const frame = card.querySelector('.model-frame');
     const title = card.querySelector('strong').textContent;
     let extras = [];
     try { extras = JSON.parse(card.dataset.images || '[]'); } catch {}
     const sources = [...new Set([img.getAttribute('src'), ...(Array.isArray(extras) ? extras : [])])];
+    const mediaLabel = sources.some(isVideo) ? 'items' : 'images';
     const trigger = document.createElement('button');
     trigger.type = 'button';
     trigger.className = 'model-open' + (sources.length > 1 ? ' has-album' : '');
-    trigger.setAttribute('aria-label', sources.length > 1 ? `Open ${title} album, ${sources.length} images` : `Enlarge ${title}`);
+    trigger.setAttribute('aria-label', sources.length > 1 ? `Open ${title} album, ${sources.length} ${mediaLabel}` : `Enlarge ${title}`);
     trigger.setAttribute('aria-haspopup','dialog');
     frame.before(trigger);
     trigger.append(frame);
@@ -172,7 +204,7 @@ document.querySelectorAll('.model-card').forEach(card => {
 
     trigger.addEventListener('click', () => {
         if (album.open || lightbox.open) return;
-        if (sources.length === 1) return enlarge(sources[0],img.alt);
+        if (sources.length === 1) return enlarge(sources[0],img.alt || title);
         document.getElementById('albumTitle').textContent = title;
         document.getElementById('albumCaption').replaceChildren(...Array.from(card.querySelector('.model-caption > span:last-child').childNodes, node => node.cloneNode(true)));
         const container = document.getElementById('albumImages');
@@ -180,15 +212,22 @@ document.querySelectorAll('.model-card').forEach(card => {
         sources.forEach((src,index) => {
             const button = document.createElement('button');
             button.type = 'button';
-            button.setAttribute('aria-label',`Enlarge ${title}, image ${index+1}`);
-            const shot = document.createElement('img');
+            button.setAttribute('aria-label',`Enlarge ${title}, ${isVideo(src) ? "video" : "image"} ${index+1}`);
+            const shot = document.createElement(isVideo(src) ? 'video' : 'img');
+            if (isVideo(src)) { shot.muted = true; shot.playsInline = true; shot.preload = 'metadata'; }
             shot.alt = `${title} — image ${index+1}`;
 
             shot.src = src;
             button.append(shot);
+            if (isVideo(src)) {
+                const badge = document.createElement('span');
+                badge.className = 'video-badge';
+                badge.textContent = '▶ Video';
+                button.append(badge);
+            }
             button.style.setProperty('--shot-delay', Math.min(index * 85, 680) + 'ms');
             container.append(button);
-            button.addEventListener('click',() => {if (!lightbox.open) enlarge(src,shot.alt,sources.map((source, i) => ({src: source, alt: title + " — image " + (i+1)})),index);});
+            button.addEventListener('click',() => {if (!lightbox.open) enlarge(src,shot.alt,sources.map((source, i) => ({src: source, alt: title + (isVideo(source) ? " — video " : " — image ") + (i+1)})),index);});
         });
         album.showModal();
     });
