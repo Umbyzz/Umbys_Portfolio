@@ -11,6 +11,6 @@ window.CONTRIBUTIONS = [
     "description": "Made the lobby assets, rigged the monsters, and fixed the original meshes.",
     "tag": "Blender",
     "url": "https://www.roblox.com/games/135568751325053/Pumpkin-Panic",
-    "image": ""
+    "image": "images/contributions/Pumpkin%20Panic/1.webp"
   }
 ];
