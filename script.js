@@ -430,3 +430,30 @@ if (commissionStatus) {
     syncStatus();
     new MutationObserver(syncStatus).observe(commissionStatus, {childList: true, characterData: true, subtree: true});
 }
+
+// Click-to-copy rows (the Discord username). The name stays visible, so a failed copy is harmless.
+document.querySelectorAll('[data-copy]').forEach(button => {
+    const value = button.dataset.copy;
+    const output = button.querySelector('.social-arrow');
+    const original = output.textContent;
+    let timer;
+    async function copy() {
+        try { await navigator.clipboard.writeText(value); return true; } catch {}
+        const field = document.createElement('textarea');
+        field.value = value;
+        field.setAttribute('readonly', '');
+        field.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+        document.body.append(field);
+        field.select();
+        let ok = false;
+        try { ok = document.execCommand('copy'); } catch {}
+        field.remove();
+        return ok;
+    }
+    button.addEventListener('click', async () => {
+        const ok = await copy();
+        clearTimeout(timer);
+        output.textContent = ok ? 'Copied ✓' : original;
+        timer = setTimeout(() => { output.textContent = original; }, 1600);
+    });
+});

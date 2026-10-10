@@ -868,3 +868,7 @@ main { overflow-x: clip; }
 
 /* Model-count badges: 20% transparent. */
 .model-open > .album-count { opacity: 0.8; }
+
+/* Click-to-copy Discord row: a button that looks like the other social rows. */
+button.social-row { width: 100%; margin: 0; border: 0; border-bottom: 1px solid var(--border); background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+button.social-row .social-arrow { color: var(--accent); font-size: 12px; }
