@@ -1,0 +1,3 @@
+Put each school project in its own folder here, like the other categories:
+My Project/1.png, 2.png, ... and an optional description.txt
+Cards show up under the Schoolwork tab.

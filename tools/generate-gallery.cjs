@@ -72,8 +72,8 @@ function buildContributions(root) {
 function buildGallery(root = rootDefault) {
     const metadata = JSON.parse(fs.readFileSync(path.join(root,'tools/model-details.json'),'utf8'));
     const aliases = new Map(metadata.flatMap(item => item.aliases.map(alias => [normalize(alias), item])));
-    const categories = {weapons:[], objects:[], characters:[]};
-    const folders = {weapons:'weapons', object:'objects', objects:'objects', misc:'objects', fullbody:'characters', characters:'characters'};
+    const categories = {weapons:[], objects:[], characters:[], schoolwork:[]};
+    const folders = {weapons:'weapons', object:'objects', objects:'objects', misc:'objects', fullbody:'characters', characters:'characters', schoolwork:'schoolwork', school:'schoolwork'};
     const imageRoot = path.join(root,'images');
     const groups = new Map();
     for (const dir of fs.existsSync(imageRoot) ? fs.readdirSync(imageRoot,{withFileTypes:true}) : []) {

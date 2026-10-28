@@ -841,6 +841,9 @@ main { overflow-x: clip; }
 
 /* Fourth sector and wrapping navigation on narrow phones. */
 #more { padding-top: 80px; }
+#school { padding-top: 80px; }
+/* The "nothing here yet" note disappears once a schoolwork card is generated. */
+#schoolwork:has(.model-card) .schoolwork-empty { display: none; }
 .navbar .sector-nav { flex-wrap: wrap; justify-content: center; max-width: 100%; }
 @media (max-width: 420px) { .navbar .sector-nav a { font-size: 8px; padding: 8px 5px; } }
 

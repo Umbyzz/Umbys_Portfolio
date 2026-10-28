@@ -3,8 +3,9 @@ const motion = matchMedia('(prefers-reduced-motion: reduce)');
 const portfolio = document.getElementById('portfolio');
 const commission = document.getElementById('commission');
 const contributions = document.getElementById('contributions');
+const school = document.getElementById('school');
 const goofs = document.getElementById('more');
-const sectors = [portfolio, commission, contributions, goofs];
+const sectors = [portfolio, commission, contributions, school, goofs];
 let currentSector;
 let routeVersion = 0;
 let animations = [];
@@ -13,12 +14,12 @@ async function route() {
     animations.forEach(animation => animation.cancel());
     animations = [];
     const hash = location.hash.slice(1);
-    const next = hash === 'pricing' ? commission : hash === 'contributions' ? contributions : ['more', 'goofs', 'about'].includes(hash) ? goofs : portfolio;
+    const next = hash === 'pricing' ? commission : hash === 'contributions' ? contributions : ['school', 'schoolwork'].includes(hash) ? school : ['more', 'goofs', 'about'].includes(hash) ? goofs : portfolio;
     const changed = currentSector !== next;
     const direction = sectors.indexOf(next) > sectors.indexOf(currentSector) ? 1 : -1;
     const animate = changed && currentSector && !motion.matches;
     document.querySelectorAll('[data-sector]').forEach(link => {
-        if (link.dataset.sector === (next === portfolio ? 'portfolio' : next === commission ? 'pricing' : next === contributions ? 'contributions' : 'more')) link.setAttribute('aria-current', 'page');
+        if (link.dataset.sector === (next === portfolio ? 'portfolio' : next === commission ? 'pricing' : next === contributions ? 'contributions' : next === school ? 'schoolwork' : 'more')) link.setAttribute('aria-current', 'page');
         else link.removeAttribute('aria-current');
     });
     if (animate) {

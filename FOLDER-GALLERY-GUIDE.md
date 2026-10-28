@@ -2,7 +2,7 @@
 
 ## Your normal workflow
 
-1. Drop pictures into `images/weapons`, `images/Object`, or `images/fullbody`.
+1. Drop pictures into `images/weapons`, `images/Object`, `images/fullbody`, or `images/schoolwork` (shown under the Schoolwork tab).
 2. Commit and push/upload the changes to GitHub.
 3. The included GitHub workflow scans the folders and publishes the updated website.
 
